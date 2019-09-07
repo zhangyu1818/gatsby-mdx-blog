@@ -47,7 +47,12 @@ module.exports = {
                     ),
                 },
                 gatsbyRemarkPlugins: [
-                    "gatsby-remark-copy-linked-files",
+                    {
+                        resolve: "gatsby-remark-copy-linked-files",
+                        options: {
+                            ignoreFileExtensions: [],
+                        },
+                    },
                     `gatsby-remark-prismjs`,
                 ],
             },
