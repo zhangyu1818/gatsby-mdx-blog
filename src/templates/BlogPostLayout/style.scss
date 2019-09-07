@@ -1,0 +1,16 @@
+.post-title {
+    margin: 0;
+}
+.post-navigator {
+    display: flex;
+    margin-top: 1.75rem;
+    *{
+        flex: 1
+    }
+    .left{
+        text-align: left;
+    }
+    .right{
+        text-align: right;
+    }
+}

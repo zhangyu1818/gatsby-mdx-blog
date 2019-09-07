@@ -1,0 +1,15 @@
+.bio-wrap {
+    display: flex;
+}
+
+.avatar {
+    margin-right: 0.875rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: center/contain no-repeat;
+}
+
+.description {
+    max-width: 240px;
+}

@@ -1,0 +1,45 @@
+.blog {
+    max-width: 42rem;
+    min-height: 100vh;
+    padding: 2.625rem 1.3125rem;
+    margin: auto;
+    color: var(--textNormal);
+    display: flex;
+    flex-direction: column;
+    .blog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.625rem;
+        line-height: 3.8rem;
+    }
+
+    .blog-name {
+        margin: 0;
+        color: var(--textLink);
+        font-size: 2.5em;
+        &.small {
+            color: var(--textNormal);
+            font-size: 1.5rem;
+        }
+        a{
+            font-family: inherit;
+        }
+    }
+
+    .blog-footer {
+        padding-top: 1.75rem;
+    }
+
+    .blog-content {
+        flex: 1;
+    }
+
+    .footer-item {
+        color: var(--footer-link);
+        &:hover {
+            color: #858585;
+            box-shadow: 0 1px 0 0 currentColor;
+        }
+    }
+}
