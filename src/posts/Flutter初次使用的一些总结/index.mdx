@@ -36,7 +36,7 @@ date: "2019-09-07 21:20"
 
 ### 网络请求
 
-```
+``` dart
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options) async {
@@ -74,7 +74,7 @@ date: "2019-09-07 21:20"
 
 在`main` 函数里，先于`runApp`函数调用`Global`类的初始化方法，初始化`shared_preferences`以及极光推送，并且传出一个`GlobalKey`，赋值给`MJaterialApp`的`navigatorKey`，这样做可以让全局只需要调用`Global`静态类，就可以直接操作`navigator`，比如上图在请求中对`token`失效后对跳转。执行完`Global`对初始化后然后再执行`runApp`，`main`函数如下
 
-```
+``` dart
 void main() {
   // 先初始化
   Global.init().then((GlobalKey<NavigatorState> navigatorKey) {
@@ -98,7 +98,7 @@ void main() {
 
 查阅了一些方法，感觉都太复杂了，还是参考前端的`rem`布局方式，写了一个计算的函数，所有数值都用这个函数，好像没啥问题，不过公司都 ios 开发说这种等比方式很恶心 orz
 
-```
+``` dart
 double setSize(double width) {
   final double screenWidth = MediaQueryData.fromWindow(window).size.width;
   final double percent = screenWidth / 375;
@@ -114,7 +114,7 @@ double setSize(double width) {
 
 这个效果，简单看了看官方的示例项目，就决定是[`showModalBottomSheet`](https://api.flutter.dev/flutter/material/showModalBottomSheet.html)了，不过很快就遇见了问题，使用`showModalBottomSheet`创建的页面，高度只能是屏幕的一半，网上看了看有些就得魔改源码，发现一个参数`isScrollControlled`可以让页面全屏，于是我就把背景设为透明，`child`设一个定高，就可以上面留白了
 
-```
+``` dart
     showModalBottomSheet(
         // 页面可以全屏
         isScrollControlled: true,
@@ -141,7 +141,7 @@ double setSize(double width) {
 
 有一个叫[`StatefulBuilder`](https://api.flutter.dev/flutter/widgets/StatefulBuilder-class.html)的`Widget`，可以创建一个`state`，给一个`setState`的方法，用这个包装一下里层的`Widget`，就可以让这个页面改变了
 
-```
+``` dart
  showModalBottomSheet(
         ...
         builder: (BuildContext context) {
@@ -173,7 +173,7 @@ double setSize(double width) {
 这个页面是一个分享页，但是是模糊透明的，如果是用命名路由，好像不能做到这样的效果，需要用到[`PageRouteBuilder`](https://api.flutter.dev/flutter/widgets/PageRouteBuilder-class.html)
 代码如下
 
-```
+``` dart
 Navigator.of(context).push(
       PageRouteBuilder(
         transitionDuration: Duration(milliseconds: 200),
@@ -230,7 +230,7 @@ Navigator.of(context).push(
 
 页面的滚动是用`PageView`做的，遇见的一个问题就是焦点问题，最后在`PageView`的事件里进行了判断，看是应该哪一个输入框聚焦
 
-```
+``` dart
     _pageController = PageController()
       ..addListener(() {
         if (_pageController.page.toInt() == 1)
@@ -273,3 +273,5 @@ flutter 现在确实有一些问题，有些问题我看 github 上 17 年就有
 dart 语言得学习，也让我感受到强类型都好处，写着真的很舒服，js 那一堆莫名的联想哈哈，所以学好 ts 还是至关重要的，以后得多多使用 ts
 
 上个月买了台mbp15，真是卡出新高度啊，就这篇文章，就几个gif，就卡不行，编译器不好使吗？有道云里同样也卡，而windows下一点不卡，不过mac系统还是挺好用的，完全没能让我感受到6核12线程到强劲，如果是windows这个价钱就是3700x+2080super吧，相比之下真是low的淌口水……
+
+研究了下pm2自动部署部署，居然服务器内存不够，部署不了，我也是醉了，只能又ssh传了，总觉得傻傻的

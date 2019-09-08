@@ -2,7 +2,7 @@ module.exports = {
     siteMetadata: {
         title: `Blog`,
         author: `Zhang Yu`,
-        description: `code`,
+        description: `code code code`,
         siteUrl: `http://zhangyu1818.com/`,
     },
     plugins: [
