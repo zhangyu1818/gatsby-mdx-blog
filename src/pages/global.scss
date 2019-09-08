@@ -418,7 +418,7 @@ body {
       content: "text";
     }
 
-    pre[class="language-shell"]::before {
+    pre[class="language-shell"]::before,pre[class="language-shellscript"]::before {
       content: "shell";
     }
 

@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "gatsby";
-import { formatReadingTime } from "../utils/helpers";
 
-const PostItem = ({ link, title, date, timeToRead, excerpt }) => (
+const PostItem = ({ link, title, date, excerpt }) => (
     <div>
         <h3 style={{ marginBottom: "0.35rem" }}>
             <Link style={{ boxShadow: "none" }} to={link}>
@@ -10,7 +9,7 @@ const PostItem = ({ link, title, date, timeToRead, excerpt }) => (
             </Link>
         </h3>
         <small>
-            {date} {` • ${formatReadingTime(timeToRead)}`}
+            {date}
         </small>
         <p>{excerpt}</p>
     </div>

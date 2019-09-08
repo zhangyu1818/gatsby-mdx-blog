@@ -15,7 +15,6 @@ const IndexPage = ({ data }) => (
                     link={fields.slug}
                     title={frontmatter.title}
                     date={frontmatter.date}
-                    timeToRead={timeToRead}
                     excerpt={excerpt}
                 />
             )
@@ -35,7 +34,6 @@ export const query = graphql`
                     title
                 }
                 excerpt(pruneLength: 100)
-                timeToRead
                 fields {
                     slug
                 }
