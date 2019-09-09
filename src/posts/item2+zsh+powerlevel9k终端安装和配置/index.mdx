@@ -61,21 +61,28 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
     )
 ```
 
-为什么会有这么多呢，其实大部分我也不知道是干啥的，不过我崇拜的大佬[sorrycc](https://github.com/sorrycc/awesome-tools#%E7%BC%96%E8%BE%91%E5%99%A8%E5%92%8C-terminal)都添加了，那我必须得跟着大佬的脚步
+为什么会有这么多呢，其实大部分我也不知道是干啥的
+
+不过我崇拜的大佬[sorrycc](https://github.com/sorrycc/awesome-tools#%E7%BC%96%E8%BE%91%E5%99%A8%E5%92%8C-terminal)添加了，那我必须得跟着大佬的脚步
 
 有部分插件是需要在github上找到自己安装的，这里就不在赘述
 
 ### 美化 item2 主题配色
 
-[主题配色一览](https://iterm2colorschemes.com/)
-这里能找到一堆配色，我选用的是[oneHalfDark](https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/OneHalfDark.itermcolors)
+> [主题配色一览](https://iterm2colorschemes.com/)
+>
+> 这里能找到一堆配色，我选用的是[oneHalfDark](https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/OneHalfDark.itermcolors)
+> 
+> 直接对着名字右键另存为就可以保存了
+> 然后打开 item2
+> 
+> `preferences -> profiles -> colors ->右下角Color presets -> import`
+> 
+> 选择刚才下载的文件，导入后再选中样式就行了，这时候终端里的配色已经变化了
 
-直接对着名字右键另存为就可以保存了
-然后打开 item2
-
-`preferences -> profiles -> colors ->右下角Color presets -> import`
-
-选择刚才下载的文件，导入后再选中样式就行了，这时候终端里的配色已经变化了
+找到了一个导入更方便，样式很多的仓库[`gogh`](https://github.com/Mayccoll/Gogh)
+1. bash -c  "$(curl -sLo- https://git.io/vQgMr)"
+2. 输入`ALL`导入全部，当然也可以只导入某几项
 
 ### 安装美化插件powerlevel9k
 
@@ -91,13 +98,13 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 ```shell script
 If you want to load powerlevel9k in your zsh simply add the following line to your .zshrc:
 
-  source /usr/local/opt/powerlevel9k@0.6.3/powerlevel9k.zsh-theme
+  source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme
 
 Alternatively you can run this command to append the line to your .zshrc
 
-  echo "source /usr/local/opt/powerlevel9k@0.6.3/powerlevel9k.zsh-theme" >> ~/.zshrc
+  echo "source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme" >> ~/.zshrc
 ```
-直接输入`source /usr/local/opt/powerlevel9k@0.6.3/powerlevel9k.zsh-theme`就可以将主题配置进zsh里
+直接输入`echo "source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme" >> ~/.zshrc`就可以将主题配置进zsh里
 
 #### 下载powerlevel9k适用的字体
 
