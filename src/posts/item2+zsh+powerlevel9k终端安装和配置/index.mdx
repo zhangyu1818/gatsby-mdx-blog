@@ -65,26 +65,27 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 
 不过我崇拜的大佬[sorrycc](https://github.com/sorrycc/awesome-tools#%E7%BC%96%E8%BE%91%E5%99%A8%E5%92%8C-terminal)添加了，那我必须得跟着大佬的脚步
 
-有部分插件是需要在github上找到自己安装的，这里就不在赘述
+有部分插件是需要在 github 上找到自己安装的，这里就不在赘述
 
 ### 美化 item2 主题配色
 
 > [主题配色一览](https://iterm2colorschemes.com/)
 >
 > 这里能找到一堆配色，我选用的是[oneHalfDark](https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/OneHalfDark.itermcolors)
-> 
+>
 > 直接对着名字右键另存为就可以保存了
 > 然后打开 item2
-> 
+>
 > `preferences -> profiles -> colors ->右下角Color presets -> import`
-> 
+>
 > 选择刚才下载的文件，导入后再选中样式就行了，这时候终端里的配色已经变化了
 
 找到了一个导入更方便，样式很多的仓库[`gogh`](https://github.com/Mayccoll/Gogh)
-1. bash -c  "$(curl -sLo- https://git.io/vQgMr)"
+
+1. bash -c "\$(curl -sLo- https://git.io/vQgMr)"
 2. 输入`ALL`导入全部，当然也可以只导入某几项
 
-### 安装美化插件powerlevel9k
+### 安装美化插件 powerlevel9k
 
 [powerlevel9k](https://github.com/Powerlevel9k/powerlevel9k)是一套终端主题
 
@@ -95,6 +96,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 2. `brew install powerlevel9k`
 
 这时候命令行里会弹出一段提示
+
 ```shell script
 If you want to load powerlevel9k in your zsh simply add the following line to your .zshrc:
 
@@ -104,11 +106,12 @@ Alternatively you can run this command to append the line to your .zshrc
 
   echo "source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme" >> ~/.zshrc
 ```
-直接输入`echo "source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme" >> ~/.zshrc`就可以将主题配置进zsh里
 
-#### 下载powerlevel9k适用的字体
+直接输入`echo "source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme" >> ~/.zshrc`就可以将主题配置进 zsh 里
 
-文档中提供了[4种](https://github.com/Powerlevel9k/powerlevel9k/wiki/Install-Instructions#step-2-install-a-powerline-font)自定义的字体的方式，我选择的是第四种，因为比较简单
+#### 下载 powerlevel9k 适用的字体
+
+文档中提供了[4 种](https://github.com/Powerlevel9k/powerlevel9k/wiki/Install-Instructions#step-2-install-a-powerline-font)自定义的字体的方式，我选择的是第四种，因为比较简单
 
 这里使用的字体叫[nerd-fonts](https://github.com/ryanoasis/nerd-fonts)，这个字体应该是集成了很多图标，虽然可选字体不多，但是够用就行
 
@@ -120,16 +123,18 @@ Alternatively you can run this command to append the line to your .zshrc
 
 3. `preferences -> profiles -> text ->fonts`选中即可
 
-#### 自定义powerlevel9k的显示
+#### 自定义 powerlevel9k 的显示
 
 可以对终端做一些小修改
 
-1. 打开zsh配置文件
+1. 打开 zsh 配置文件
 
 ```shell script
     vi ~/.zshrc
 ```
+
 2. 直接在第一行输入，如果写在最后会不生效的！
+
 ```shell script
     # 这里显示字体图标
     POWERLEVEL9K_MODE="nerdfont-complete"
@@ -138,6 +143,7 @@ Alternatively you can run this command to append the line to your .zshrc
     # 这里是显示右侧的提示
     POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(dir_writable)
 ```
+
 显示的提示可以看[文档](https://github.com/Powerlevel9k/powerlevel9k#available-prompt-segments)的说明
 
-基本就这样，接着可能就需要再研究下zsh的插件了
+基本就这样，接着可能就需要再研究下 zsh 的插件了

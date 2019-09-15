@@ -11,7 +11,7 @@ const FooterNavigator = ({ children }) => (
 
 const NavigatorItem = ({ link, children, suffix, prefix, className }) => (
     <div className={className}>
-        <Link to={link} >
+        <Link to={link}>
             {prefix}
             {children}
             {suffix}
@@ -30,12 +30,20 @@ const Index = ({ data, pageContext }) => {
             <MDXRenderer>{body}</MDXRenderer>
             <FooterNavigator>
                 {previous && (
-                    <NavigatorItem className="left" link={previous.fields.slug} prefix="←">
+                    <NavigatorItem
+                        className="left"
+                        link={previous.fields.slug}
+                        prefix="←"
+                    >
                         {previous.frontmatter.title}
                     </NavigatorItem>
                 )}
                 {next && (
-                    <NavigatorItem className="right" link={next.fields.slug} suffix="→">
+                    <NavigatorItem
+                        className="right"
+                        link={next.fields.slug}
+                        suffix="→"
+                    >
                         {next.frontmatter.title}
                     </NavigatorItem>
                 )}

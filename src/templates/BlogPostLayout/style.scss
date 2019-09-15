@@ -4,13 +4,13 @@
 .post-navigator {
     display: flex;
     margin-top: 1.75rem;
-    *{
-        flex: 1
+    * {
+        flex: 1;
     }
-    .left{
+    .left {
         text-align: left;
     }
-    .right{
+    .right {
         text-align: right;
     }
 }

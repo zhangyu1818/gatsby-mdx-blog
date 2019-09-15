@@ -8,9 +8,7 @@ const PostItem = ({ link, title, date, excerpt }) => (
                 {title}
             </Link>
         </h3>
-        <small>
-            {date}
-        </small>
+        <small>{date}</small>
         <p>{excerpt}</p>
     </div>
 );
