@@ -4,6 +4,10 @@ body {
     --footer-link: #666;
     font-family: youyuan, -apple-system, "Microsoft YaHei UI", sans-serif;
 
+    .mb-2{
+        margin-bottom: 2rem;
+    }
+
     &.light {
         --bg: #fafafa;
         --header: #cc2a41;

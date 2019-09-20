@@ -1,0 +1,116 @@
+---
+title: 做一个动态的骨架屏
+date: "2019-09-20 10:05"
+---
+
+import Skeleton from "react-animate-skeleton";
+Skeleton.skeletonColor = "#eaebec";
+
+当页面的数据还未加载出来的时候，数据展示部分是空白并且没有高度，这是如果数据加载完成，数据部分就会渲染出来，导致页面布局的抖动
+
+这样给人一种很突然的感觉，骨架屏就是一种提升体验效果的解决方案，用一定样式的区块，对应需要加载中的数据区块，数据区块加载完毕后替换骨架屏，现在骨架屏应用也非常广泛了，随便找个 app，都是一大把的骨架屏
+
+## 所以我也来写一个骨架屏吧
+
+通常骨架屏的样式是静态或者动态的，动态会给人更好的交互体验
+
+这是[`ant-design`](https://ant.design/components/skeleton-cn/)的骨架屏样式
+
+![骨架屏](example.gif)
+
+这种骨架屏就是用带动画背景的空标签拼出来的效果，一行就是一个标签
+
+这种是我实现的骨架屏样式
+
+<Skeleton height="auto" width={320}>
+    <Skeleton.Padding padding={20}>
+        <Skeleton.Section lineHeight={30} lines={2} gap={10} />
+        <Skeleton.Image height={320} padding={20} />
+        <Skeleton.Section lineHeight={20} lines={4} gap={10} />
+    </Skeleton.Padding>
+</Skeleton>
+
+这个样式的骨架屏，实现方式是完全不同的，比如我这里的样式，有两行，一个图片，四行，但是只用了 3 个标签
+
+是不是感觉很棒，这个效果我最初是在一个在线文档的网站看见的，文档很长，加载的时候就是这样从上至下，研究了一会儿才明白这种效果
+
+它的原理就是，背景是一个渐变图，有一个`background-position`的动画效果，上面布局的元素，其实有颜色的部分是透明的！白色的才是设置的颜色
+
+在昨天空闲的时候，简单的做了封装，写了一个包`react-animate-skeleton`，通过里面的组件传参简单拼几下，就能做出不错的效果，不过目前有个问题就是我没想到圆形的占位该如何实现
+
+## 导入包
+
+`npm i -S react-animate-skeleton`
+
+### 效果 1
+
+<div class="mb-2">
+    <Skeleton width={290}>
+        <Skeleton.Padding padding={20}>
+            <Skeleton.Item height={32} />
+            <Skeleton.Gap height={24} />
+            <Skeleton.Section lineHeight={50} lines={4} gap={5} />
+        </Skeleton.Padding>
+    </Skeleton>
+</div>
+
+```jsx
+<Skeleton width={290}>
+    <Skeleton.Padding padding={20}>
+        <Skeleton.Item height={32} />
+        <Skeleton.Gap height={24} />
+        <Skeleton.Section lineHeight={50} lines={4} gap={5} />
+    </Skeleton.Padding>
+</Skeleton>
+```
+
+首先使用`<Skeleton />` 创建一个骨架屏区域，这个区域会有背景的渐变动画
+
+`<Skeleton.Padding />` 空白的`padding`间隙
+
+`<Skeleton.Item />` 对应一行
+
+`<Skeleton.Gap />` 对应空白间隙
+
+`<Skeleton.Section />` 对应一个多行带有间隙的区域
+
+### 效果 2
+
+<div class="mb-2">
+    <Skeleton height="auto" width={290}>
+        <Skeleton.Padding padding={20}>
+            <Skeleton.Item height={32} />
+            <Skeleton.Image height={180} padding={"20px 0"} />
+            <Skeleton.Section
+                horizontal
+                height={76}
+                lines={3}
+                lineHeight={76}
+                gap={10}
+            />
+        </Skeleton.Padding>
+    </Skeleton>
+</div>
+
+```jsx
+<Skeleton height="auto" width={290}>
+    <Skeleton.Padding padding={20}>
+        <Skeleton.Item height={32} />
+        <Skeleton.Image height={180} padding={"20px 0"} />
+        <Skeleton.Section
+            horizontal
+            height={76}
+            lines={3}
+            lineHeight={76}
+            gap={10}
+        />
+    </Skeleton.Padding>
+</Skeleton>
+```
+
+复杂的效果实现起来还是比较困难，只是行块会比较方便
+
+有空的时候再码码，加点东西，横着的块就很恼火,还有就是颜色真费眼睛,写个博客感觉眼睛快瞎了
+
+
+这篇博客充分提现了`mdx`的好处，实在是太方便了，直接把自己写的包`import`进来写`jsx`，真黑科技啊，虽然不懂原理，但是能正常运行，真是令人高兴
