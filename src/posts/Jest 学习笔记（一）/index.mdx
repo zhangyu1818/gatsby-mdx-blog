@@ -1,0 +1,423 @@
+---
+title: Jest 学习笔记（一）
+date: "2019-10-05 12:36"
+---
+
+## 安装Jest
+
+安装Jest
+
+```bash
+yarn add --dev jest
+```
+
+安装Bable
+
+```bash
+yarn add --dev babel-jest @babel/core @babel/preset-env
+```
+
+在根目录创建`bable`配置文件
+
+```javascript
+// babel.config.js
+module.exports = {
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+      },
+    ],
+  ],
+};
+```
+
+如果不安装`babel`，`Jest`测试文件中需要使用`commonJS`不兼容`es`标准，需要使用`babel`才可以正常使用`es`模块导入导出
+
+## 匹配器
+
+### 普通匹配器
+
+#### `toBe(...)`匹配器
+
+```javascript
+test('two plus two is four', () => {
+  expect(2 + 2).toBe(4);
+});
+```
+
+在这段代码中,`expect(2 + 2)`返回一个“期望”的对象，通常不会对期望对象调用过多的匹配器，在这里，使用的是`toBe(...)`匹配器，当`Jest`运行时，它会跟踪所有失败的匹配器，并打印出详细的错误信息
+
+`test(...)`表示这是一个测试用例，第一个参数为测试的描述，第二个参数是测试执行的函数，上述测试，用白话来看就是：`期望 2 + 2的结果应该是 4`
+
+#### `toEqual(...)`匹配器
+
+`toBe`只是简单的使用`Object.is()`进行判断，在复杂值判断时就不会正确，这时候需要使用`toEqual`来判断，`toEqual`会递归判断对象或数组的每一个字段
+
+```javascript
+test('object assignment', () => {
+  const data = {one: 1};
+  data['two'] = 2;
+  expect(data).toEqual({one: 1, two: 2});
+});
+```
+
+#### `not`匹配器
+
+`not`匹配器能够对结果取反
+
+```javascript
+test('adding positive numbers is not zero', () => {
+  for (let a = 1; a < 10; a++) {
+    for (let b = 1; b < 10; b++) {
+      expect(a + b).not.toBe(0);
+    }
+  }
+});
+```
+
+
+
+### 真值
+
+测试时有时候需要区分`undefined`、`null`、`false`，有时又不需要区分，`Jest`对此提供了相应的匹配器
+
+```javascript
+test('null', () => {
+  const n = null;
+  expect(n).toBeNull(); // 为null，通过
+  expect(n).toBeDefined(); // 为null，不是undefined，通过
+  expect(n).not.toBeUndefined(); // 不为undefined，通过
+  expect(n).not.toBeTruthy(); // 不为真，通过
+  expect(n).toBeFalsy(); // 为假，通过
+});
+
+test('zero', () => {
+  const z = 0;
+  expect(z).not.toBeNull(); // 不为null，通过
+  expect(z).toBeDefined(); // 不是undefined，通过
+  expect(z).not.toBeUndefined(); // 同上
+  expect(z).not.toBeTruthy(); // 不为真，通过
+  expect(z).toBeFalsy(); // 为假，通过
+});
+```
+
+- `toBeNull` 只匹配 `null`
+- `toBeUndefined` 只匹配 `undefined`
+- `toBeDefined` 与 `toBeUndefined` 相反
+- `toBeTruthy` 匹配任何 `if` 语句为真
+- `toBeFalsy` 匹配任何 `if` 语句为假
+
+### 数字
+
+```javascript
+test('two plus two', () => {
+  const value = 2 + 2;
+  expect(value).toBeGreaterThan(3); // 大于
+  expect(value).toBeGreaterThanOrEqual(3.5); //大于等于
+  expect(value).toBeLessThan(5); // 小于
+  expect(value).toBeLessThanOrEqual(4.5); // 小于等于
+
+  // toBe and toEqual are equivalent for numbers
+  expect(value).toBe(4);
+  expect(value).toEqual(4); //对于数字类型来讲，toBe和toEqual效果是相同的
+});
+```
+
+在`javascript`中，浮点类型判断也许会有误差，如常知的`0.1 +  0.2  != 0.3`，这时候需要使用`toBeCloseTo`来进行匹配
+
+```javascript
+test('两个浮点数字相加', () => {
+  const value = 0.1 + 0.2;
+  //expect(value).toBe(0.3);           这句会报错，因为浮点数有舍入误差
+  expect(value).toBeCloseTo(0.3); // 这句可以运行
+});
+
+```
+
+### 字符串
+
+#### `toMatch`匹配器
+
+```javascript
+test('there is no I in team', () => {
+  expect('team').not.toMatch(/I/);
+});
+
+test('but there is a "stop" in Christoph', () => {
+  expect('Christoph').toMatch(/stop/);
+});
+
+```
+
+`toMatch`匹配器可以对字符串进行正则匹配
+
+### 数组和可迭代对象
+
+#### `toContain` 匹配器
+
+```javascript
+const shoppingList = [
+  'diapers',
+  'kleenex',
+  'trash bags',
+  'paper towels',
+  'beer',
+];
+
+test('the shopping list has beer on it', () => {
+  expect(shoppingList).toContain('beer');
+  expect(new Set(shoppingList)).toContain('beer');
+});
+
+```
+
+`toContain`匹配器可以判断一个数组或可迭代对象中是否包含某个特定项
+
+### 抛出异常
+
+`toThrow`匹配器
+
+```javascript
+function compileAndroidCode() {
+  throw new Error('you are using the wrong JDK');
+}
+
+test('compiling android goes as expected', () => {
+  expect(compileAndroidCode).toThrow(); // 匹配错误
+  expect(compileAndroidCode).toThrow(Error); // 匹配Error类型错误
+
+  // You can also use the exact error message or a regexp
+  expect(compileAndroidCode).toThrow('you are using the wrong JDK'); //匹配错误message
+  expect(compileAndroidCode).toThrow(/JDK/); // 可以使用正则匹配
+});
+
+```
+
+如果测试的特定的函数需要抛出一个错误，需要使用`toThrow`匹配器
+
+## 测试异步代码
+
+### 回调函数
+
+```javascript
+test('the data is peanut butter', done => {
+  function callback(data) {
+    expect(data).toBe('peanut butter');
+    done(); // 标志回调函数执行完毕
+  }
+
+  fetchData(callback);
+});
+
+```
+
+`test`函数接收一个函数参数，执行函数表示回调函数执行完毕，测试结束，如果`done()`没有被调用执行，那么这个测试将会失败
+
+### Promise
+
+更简单的方式是使用`Promise`，`Jest`会等待`Promise`执行完毕，如果`Promise`执行`reject`，测试将失败
+
+```javascript
+test('the data is peanut butter', () => {
+  return fetchData().then(data => {
+    expect(data).toBe('peanut butter');
+  });
+});
+
+```
+
+#### `.resolves`
+
+可以用`resolves`匹配器来匹配`Promise`的`resolve`
+
+```javascript
+test('the data is peanut butter', () => {
+  return expect(fetchData()).resolves.toBe('peanut butter');
+});
+
+```
+
+#### `.rejects`
+
+如果想要`Promise`被`reject`，可以使用`.rejects`匹配器
+
+```javascript
+test('the fetch fails with an error', () => {
+  return expect(fetchData()).rejects.toMatch('error');
+});
+
+
+```
+
+#### `async/await`
+
+最简单的方法是使用`async`和`await`
+
+```javascript
+test('the data is peanut butter', async () => {
+  const data = await fetchData();
+  expect(data).toBe('peanut butter');
+});
+
+test('the fetch fails with an error', async () => {
+  expect.assertions(1);
+  try {
+    await fetchData();
+  } catch (e) {
+    expect(e).toMatch('error');
+  }
+});
+
+```
+
+你也可以将`async`和`.resolves`、'.rejects'一起使用
+
+```javascript
+test('the data is peanut butter', async () => {
+  await expect(fetchData()).resolves.toBe('peanut butter');
+});
+
+test('the fetch fails with an error', async () => {
+  await expect(fetchData()).rejects.toThrow('error');
+});
+
+```
+
+## 设置测试前置和后置任务
+
+某些测试用例，需要在运行测试时进行一些准备工作，如类实例的初始化，测试结束后的某些操作
+
+### `beforeEach`、`afterEach`每次测试设置
+
+```javascript
+beforeEach(() => {
+  initializeCityDatabase();
+});
+
+afterEach(() => {
+  clearCityDatabase();
+});
+
+test('city database has Vienna', () => {
+  expect(isCity('Vienna')).toBeTruthy();
+});
+
+test('city database has San Juan', () => {
+  expect(isCity('San Juan')).toBeTruthy();
+});
+
+```
+
+`beforeEach`在每一个测试用例开始测试之前执行，如上每次测试之前会执行`initializeCityDatabase()`
+
+`afterEach`则是在每一个测试用例测试结束后执行，如上每次测试之后会执行`clearCityDatabase()`
+
+`beforeEach`、`afterEach`处理异步代码的方式和`test`一样，可以在异步代码执行完毕后调用`done()`函数，也可以返回一个`Promise`让`Jest`处理
+
+### `beforeAll`、`afterAll`一次性设置
+
+某些情况，如异步初始化数据库，只需要在某一组（简单来讲可以是一个`*.test.js`文件）测试之前和结束时进行设置，可以使用`beforeAll`、`afterAll`
+
+```javascript
+beforeAll(() => {
+  return initializeCityDatabase();
+});
+
+afterAll(() => {
+  return clearCityDatabase();
+});
+
+test('city database has Vienna', () => {
+  expect(isCity('Vienna')).toBeTruthy();
+});
+
+test('city database has San Juan', () => {
+  expect(isCity('San Juan')).toBeTruthy();
+});
+
+```
+
+### 作用域
+
+默认情况下，`before`和`after`会以文件为作用域作用于每次都测试，你也可以使用`describe`来将测试分组，当`before`和`after`包含在`describe`块中时，它们就只作用于`describe`块中的测试用例
+
+```javascript
+beforeAll(() => console.log('1 - beforeAll'));
+afterAll(() => console.log('1 - afterAll'));
+beforeEach(() => console.log('1 - beforeEach'));
+afterEach(() => console.log('1 - afterEach'));
+test('', () => console.log('1 - test'));
+describe('Scoped / Nested block', () => {
+  beforeAll(() => console.log('2 - beforeAll'));
+  afterAll(() => console.log('2 - afterAll'));
+  beforeEach(() => console.log('2 - beforeEach'));
+  afterEach(() => console.log('2 - afterEach'));
+  test('', () => console.log('2 - test'));
+});
+
+// 1 - beforeAll
+// 1 - beforeEach
+// 1 - test
+// 1 - afterEach
+// 2 - beforeAll 
+// 1 - beforeEach —— describe 中的测试依旧会执行最外层`before`
+// 2 - beforeEach
+// 2 - test
+// 2 - afterEach
+// 1 - afterEach
+// 2 - afterAll
+// 1 - afterAll
+
+```
+
+需要注意的是，最外层的`before`和`after`仍然会作用于`describe`块中的测试
+
+#### `describe`和`test`块的执行顺序
+
+`Jest`会在所有真正的测试开始之前执行测试文件里所有的`describe`，所以任务写在`before*`和`after*`而不是直接卸载`describe`中，当所有`describe`执行完毕后，`Jest`会按照`test`出现顺序依次执行
+
+```javascript
+describe('outer', () => {
+  console.log('describe outer-a');
+
+  describe('describe inner 1', () => {
+    console.log('describe inner 1');
+    test('test 1', () => {
+      console.log('test for describe inner 1');
+      expect(true).toEqual(true);
+    });
+  });
+
+  console.log('describe outer-b');
+
+  test('test 1', () => {
+    console.log('test for describe outer');
+    expect(true).toEqual(true);
+  });
+
+  describe('describe inner 2', () => {
+    console.log('describe inner 2');
+    test('test for describe inner 2', () => {
+      console.log('test for describe inner 2');
+      expect(false).toEqual(false);
+    });
+  });
+
+  console.log('describe outer-c');
+});
+
+// describe outer-a
+// describe inner 1
+// describe outer-b
+// describe inner 2
+// describe outer-c
+// test for describe inner 1
+// test for describe outer
+// test for describe inner 2
+
+```
+
