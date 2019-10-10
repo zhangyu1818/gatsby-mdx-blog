@@ -9,11 +9,11 @@ date: "2019-10-10 17:20"
 
 [`Seafile`](https://download.seafile.com/published/seafile-manual/home.md)是一个 高性能的网盘，同时也有在线的`Markdown`编辑，在[`Github`](https://github.com/haiwen/seafile)上有7.2k的star，使用`C`和`Python`开发，并且支持`Docker`安装，同时配套有手机客户端
 
-同类开源网盘还有`NextCloud`和`OwnCloud`，但是它们都是`PHP`开发的，个人不太喜欢，因为以前用`Wordoress`卡卡的😂
+同类开源网盘还有`NextCloud`和`OwnCloud`，但是它们都是`PHP`开发的，个人不太喜欢，因为以前用`Wordpress`卡卡的😂
 
 ## 安装
 
-`Seafile 7` 只能使用`docker`，用　docker-compose`简单配置安装`，以下命令都在`root`用户下执行
+`Seafile 7` 只能使用`docker`，用`docker-compose`简单配置安装，以下命令都在`root`用户下执行
 
 1. 首先需要安装`docker-compose`
 
@@ -49,6 +49,12 @@ date: "2019-10-10 17:20"
 ```shell
 docker exec -it seafile ls /shared/seafile
 ```
+
+## 非80端口问题
+
+如果不是80端口，用`nginx`反向代理后，在有子目录情况下，会出现资源文件找不到，是因为资源文件请求是站点路径，不是相对路径，暂时不知道配置`nginx`能否解决这个问题
+
+我的解决方案就很简单，不用子目录形式的反向代理，直接加个二级域名
 
 ## 目前发现问题
 
