@@ -5,9 +5,9 @@ const Index = () => (
     <div className="bio-wrap">
         <div className="avatar" />
         <p className="description">
-            oh oh ~
+            oh oh sometime ~
             <br />
-            sometime i get a good feeling~
+            i get a good feeling~
         </p>
     </div>
 );

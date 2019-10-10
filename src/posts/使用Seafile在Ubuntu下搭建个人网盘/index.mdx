@@ -1,0 +1,60 @@
+---
+title: 使用Seafile，Ubuntu下搭建个人网盘
+date: "2019-10-10 17:20"
+---
+
+这是一个伪需求，实际上，无论是使用iCloud或者是OneDrive，都比个人网盘好使，好用，更快
+
+## Seafile
+
+[`Seafile`](https://download.seafile.com/published/seafile-manual/home.md)是一个 高性能的网盘，同时也有在线的`Markdown`编辑，在[`Github`](https://github.com/haiwen/seafile)上有7.2k的star，使用`C`和`Python`开发，并且支持`Docker`安装，同时配套有手机客户端
+
+同类开源网盘还有`NextCloud`和`OwnCloud`，但是它们都是`PHP`开发的，个人不太喜欢，因为以前用`Wordoress`卡卡的😂
+
+## 安装
+
+`Seafile 7` 只能使用`docker`，用　docker-compose`简单配置安装`，以下命令都在`root`用户下执行
+
+1. 首先需要安装`docker-compose`
+
+   ```shell
+   apt-get install docker-compose -y
+   ```
+
+2. 接着需要下载官网的[`docker-compose.yml`](https://download.seafile.com/d/320e8adf90fa43ad8fee/files/?p=/docker/docker-compose.yml)，其中`# Requested`的是必填项（其实有默认值）
+
+   - 修改`SEAFILE_ADMIN_EMAIL`和`SEAFILE_ADMIN_PASSWORD`，登录时的用户邮箱和密码
+
+   - 修改`SEAFILE_SERVER_HOSTNAME`为服务器域名
+   - 如果不想映射到80端口，修改`ports`为`xxxx:80`
+
+3. 在`docker-compose.yml`目录下执行
+
+   ```shell
+   docker-compose up -d
+   ```
+
+   
+
+4. 访问`you-domain.com:port`，登录进入`Seafile`
+
+## 上传出现网络错误
+
+这个问题困扰半天，后面发现需要`登录后 => 右上角 => 系统管理 => 左侧设置 => URL => FILE_SERVER_ROOT`改为正确的路径
+
+## 修改`docker`内应用配置
+
+`docker`是隔离环境，修改需要使用特殊命令，如果要查看`docker`内的`seafile`配置
+
+```shell
+docker exec -it seafile ls /shared/seafile
+```
+
+## 目前发现问题
+
+- 首页头像url有问题
+- 挺慢的……
+
+
+
+在简单的体验后，觉得这个没啥子用，如果需要文件同步更推荐[`syncthing`](https://github.com/syncthing/syncthing)
