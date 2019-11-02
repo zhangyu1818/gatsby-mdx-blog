@@ -9,7 +9,7 @@
         url("../../images/sun.png") 28px center/17px 17px no-repeat #0f1114;
 }
 input.offscreen[type="checkbox"]:focus + .switch:after {
-    box-shadow: 0 0 2px 3px var(--textLink);
+    box-shadow: 0 0 2px 3px var(--text-link-color);
 }
 .switch::after {
     content: "";
@@ -29,4 +29,9 @@ input.offscreen[type="checkbox"]:checked + .switch::after {
 .offscreen {
     position: absolute;
     left: -9999px;
+}
+
+.text-theme-toggle {
+    cursor: pointer;
+    user-select: none;
 }

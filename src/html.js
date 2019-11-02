@@ -17,12 +17,36 @@ export default class HTML extends React.Component {
                     <script
                         dangerouslySetInnerHTML={{
                             __html: `
-              (()=>{
-              const theme = localStorage.getItem('blogTheme');
-              if(theme==='light')
-              document.body.className='light';
-              })();
-            `,
+                    const getThemeByOS = () => {
+                        let pref = window.matchMedia("(prefers-color-scheme: dark)");
+                        if (pref.matches) return "dark";
+                        pref = window.matchMedia("(prefers-color-scheme: light)");
+                        if (pref.matches) return "light";
+                    };
+
+                    const getThemeByTime = () => {
+                        const hour = new Date().getHours();
+                        if (hour > 17 || hour < 6) return "dark";
+                        return "light";
+                    };
+                    
+                    const getTheme = () => {
+                        let theme = getThemeByOS();
+                        if (!theme) theme = getThemeByTime();
+                        return theme;
+                    };
+                    
+                    const setTheme = () => {
+                        const themeClassName = getTheme();
+                        document.body.className = themeClassName;
+                        window.localStorage.setItem("blogTheme", themeClassName);
+                    };
+                    
+                    setTheme();
+                    setTimeout(()=>{
+                        document.body.classList.add("transition");
+                    })
+                    `,
                         }}
                     />
                     {this.props.preBodyComponents}

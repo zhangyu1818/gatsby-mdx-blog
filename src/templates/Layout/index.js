@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "gatsby";
 import classNames from "classnames";
-import Toggle from "../../Components/Toggle";
+// import Toggle from "../../Components/Toggle";
+import TextThemeToggle from "../../Components/Toggle/textToggle";
 import Bio from "../../Components/Bio";
 import "./style.scss";
 
@@ -13,7 +14,8 @@ const Index = ({ children, post }) => (
                     Blog
                 </Link>
             </h1>
-            <Toggle />
+            {/*<Toggle />*/}
+            <TextThemeToggle />
         </header>
         {!post && <Bio />}
         <main className="blog-content">{children}</main>
