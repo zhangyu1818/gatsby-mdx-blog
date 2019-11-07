@@ -23,7 +23,7 @@ date: "2019-09-09 20:05"
 
     - `vim /etc/ssh/sshd_config`
     - `PubkeyAuthentication yes` 开启密钥登录
-    - `PermitRootLogin no` 关闭 root 登录
+    - `PermitRootLogin no` 禁止 root 登录 或者 `PermitRootLogin prohibit-password` 禁止 root 用户密码登录
     - `PasswordAuthentication no` 关闭密码登录
 
     需要注意的是如我这台阿里云的服务器，配置项有些默认写在最底下，如果解开上面的注释，会重复
