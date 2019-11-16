@@ -1,17 +1,4 @@
-// light
-$theme-light-bg: #fafafa;
-$theme-light-text-color: #22272a;
-$theme-light-text-link-color: #cc2a41;
-$theme-light-hr-color: rgba(#000, 0.2);
-$theme-light-inline-code-bg: rgba(#ffe564, 0.2);
-$theme-light-inline-code-text-color: #1a1a1a;
-// dark
-$theme-dark-bg: #232b32;
-$theme-dark-text-color: rgba(#fff, 0.88);
-$theme-dark-text-link-color: #2bbc8a;
-$theme-dark-hr-color: rgba(#fff, 0.2);
-$theme-dark-inline-code-bg: #373c49;
-$theme-dark-inline-code-text-color: #e6e6e6;
+@import "./variable";
 
 @mixin color($property, $var, $fallback) {
     #{$property}: $fallback; // 如果不支持css变量则使用这一行

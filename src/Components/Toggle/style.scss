@@ -34,4 +34,7 @@ input.offscreen[type="checkbox"]:checked + .switch::after {
 .text-theme-toggle {
     cursor: pointer;
     user-select: none;
+    @supports ((--a: 0)) {
+        display: block;
+    }
 }

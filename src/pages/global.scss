@@ -1,13 +1,12 @@
 @import "../scss/utils";
 
 body {
-    background-color: var(--bg);
+    @include color(background-color, --bg, $theme-dark-bg);
     font-family: youyuan, -apple-system, "Microsoft YaHei UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: rgba(#000, 0);
     transition: all 200ms ease-in-out;
-
     .mb-2 {
         margin-bottom: 2rem;
     }
@@ -215,8 +214,16 @@ body {
     /* Inline code */
     :not(pre) > code[class*="language-"] {
         border-radius: 0.3em;
-        background: var(--inline-code-bg);
-        color: var(--inline-code-text-color);
+        @include color(
+            background,
+            --inline-code-bg,
+            $theme-dark-inline-code-bg
+        );
+        @include color(
+            color,
+            --inline-code-text-color,
+            $theme-dark-inline-code-text-color
+        );
         padding: 0.15em 0.2em 0.05em;
         white-space: normal;
         font-size: 0.85rem;
@@ -423,6 +430,16 @@ body {
             color: #ffffff;
             background: #f15138;
         }
+    }
+    // 脚注
+    .footnote-ref {
+        display: inline-block;
+        text-align: center;
+        width: 1em;
+    }
+    //
+    .post-title {
+        margin-top: 0;
     }
     // 覆盖 typography 样式
     a {

@@ -1,3 +1,4 @@
+// 获取系统主题
 const getThemeByOS = () => {
     let pref = window.matchMedia("(prefers-color-scheme: dark)");
     if (pref.matches) return "dark";
@@ -5,12 +6,14 @@ const getThemeByOS = () => {
     if (pref.matches) return "light";
 };
 
+// 根据时间判断主题
 const getThemeByTime = () => {
     const hour = new Date().getHours();
     if (hour > 17 || hour < 6) return "dark";
     return "light";
 };
 
+// 获取主题
 const getTheme = () => {
     let theme = getThemeByOS();
     if (!theme) theme = getThemeByTime();
