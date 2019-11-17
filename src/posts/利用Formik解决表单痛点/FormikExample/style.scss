@@ -1,0 +1,49 @@
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+.formik-example-form {
+    .text-field {
+        font-size: 12px;
+        position: relative;
+        padding-bottom: 20px;
+        margin-bottom: 4px;
+        width: 220px;
+        .text-field-label {
+            .text-field-name {
+                padding-bottom: 8px;
+            }
+            input {
+                height: 32px;
+                padding: 0 12px;
+                outline: none;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                -webkit-appearance: none;
+                &:focus {
+                    border-color: dodgerblue;
+                    box-shadow: 0 0 2px 1px dodgerblue;
+                }
+                &.error {
+                    border-color: #ff0d1a;
+                    box-shadow: 0 0 4px 0 #ff0d1a;
+                }
+            }
+        }
+        .text-field-error {
+            color: #ff0d1a;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+    }
+    .formik-submit {
+        border: none;
+        outline: none;
+        background: dodgerblue;
+        color: #fff;
+        border-radius: 4px;
+    }
+}
