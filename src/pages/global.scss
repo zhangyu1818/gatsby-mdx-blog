@@ -82,6 +82,9 @@ body {
 
     &.dark {
         @include darkTheme();
+        img {
+            filter: grayscale(30%);
+        }
 
         .avatar {
             background-image: url("../images/avatar.jpeg");
