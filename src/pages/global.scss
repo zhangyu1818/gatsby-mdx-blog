@@ -440,6 +440,11 @@ body {
             color: #ffffff;
             background: #cc6699;
         }
+        pre[class="language-vue"]::before {
+            content: "vue";
+            color: #000;
+            background: #4fc08d;
+        }
     }
     // 脚注
     .footnote-ref {
