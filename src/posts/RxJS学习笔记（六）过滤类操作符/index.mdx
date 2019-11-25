@@ -1,0 +1,208 @@
+---
+title: RxJS学习笔记（六）过滤类操作符
+date: 2019-11-25 21:34
+---
+
+过滤首先肯定会想到数组的方法`filter`，在`RxJS`中也有相同的方法，大部分过滤类操作符都会接受一个回调函数，如果这个函数的结果返回`true`就可以保留，否则就会被过滤掉，那么就从最名副其实的`filter`操作符开始
+
+## filter
+
+过滤1-20之间的奇数
+
+```javascript
+import { range } from "rxjs";
+import { filter } from "rxjs/operators";
+
+const source$ = range(1, 20).pipe(filter(value => !(value % 2)));
+source$.subscribe(console.log);
+```
+
+`filter`操作符只能过滤数据
+
+## take
+
+`take`操作符接收一个参数，代表从上游`Observable`取多少个数据
+
+```javascript
+import { interval } from "rxjs";
+import { take } from "rxjs/operators";
+
+const source$ = interval(1000).pipe(take(2));
+source$.subscribe({
+  next: console.log,
+  complete: () => console.log("complete")
+});
+// 0
+// 1
+// complete
+```
+
+在从永不完结的`interval`操作符取了2个数据后，输出`complete`，完结
+
+## takeLast
+
+`takeLast`操作符就是从吐出的数据集合最后开始取
+
+```javascript
+import { of } from "rxjs";
+import { takeLast } from "rxjs/operators";
+
+const source$ = of(1, 2, 3, 4).pipe(takeLast(2));
+source$.subscribe(console.log);
+// 3
+// 4
+```
+
+与`take`不同的一点就是，`take`无需等待上游`Observable`对象完结，在获取对应的个数后会退订上游，而`takeLast`对象因为从最后开始取，所以必须等待上游完结，如果上游永不完结，那么`takeLast`就永远不会吐出数据
+
+## takeWhile
+
+`take`和`takeLast`操作符都是获取指定的数量，如果想要动态的判定个数，就做不到了
+
+`takeWhile`弥补了这一点，它接受一个判定函数作为参数
+
+```javascript
+import { fromEvent } from "rxjs";
+import { takeWhile } from "rxjs/operators";
+
+const source$ = fromEvent(document, "mousemove").pipe(
+    takeWhile(e => e.clientX > 200)
+);
+source$.subscribe(console.log);
+```
+
+上例在`clientX > 200`时持续输出，但是如果将鼠标移入`200`以内，就不再输出了
+
+## takeUntil
+
+`takeUntil`操作符接收一个定义为`notifier`的`Observable`对象，它会一直取上游的数据，直到`notifier`吐出一个值
+
+比如只取2秒的数据
+
+```javascript
+import { interval, timer } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+
+const source$ = interval(1000).pipe(takeUntil(timer(5000)));
+source$.subscribe(console.log);
+// 0 1 2 3
+```
+
+到第五秒到时候本应吐出`4`，但是这时候`timer(5000)`吐出了数据，所以取数结束
+
+## skip
+
+和`take`操作符恰恰相反，`skip`操作符的作用是忽略掉一定的数据
+
+```javascript
+import { range } from "rxjs";
+import { skip } from "rxjs/operators";
+
+const source$ = range(1, 5).pipe(skip(2));
+source$.subscribe(console.log);
+// 3 4 5
+```
+
+只吐出了3、4、5，忽略掉了2个也就是1、2
+
+## skipWhile
+
+也是与`takeWhile`相反
+
+```javascript
+import { fromEvent } from "rxjs";
+import { skipWhile } from "rxjs/operators";
+
+const source$ = fromEvent(document, "mousemove").pipe(
+  skipWhile(e => e.clientX > 200)
+);
+source$.subscribe(console.log);
+```
+
+上面的例子在`clientX > 200`的时候不会吐出数据，在`clientX < 200`的时候吐出了数据，但是和`takeWhile`不同的是，`takeWhile`一旦不满足`clientX > 200`这个条件，就不会再吐出数据，而`skipWhile`在判定`clientX < 200` 后开始吐出数据，这时候再将鼠标移入`clientX > 200`的区域，不会有任何效果了
+
+## skipUntil
+
+忽略2秒的数据
+
+```javascript
+import { interval, timer } from "rxjs";
+import { skipUntil } from "rxjs/operators";
+
+const source$ = interval(500).pipe(skipUntil(timer(2000)));
+source$.subscribe(console.log);
+// 3 4 5
+// ...
+```
+
+## first
+
+`first`操作符和`find`操作符很像，但它可以不传参使用
+
+```javascript
+import { range } from "rxjs";
+import { first } from "rxjs/operators";
+
+const source$ = range(1, 20).pipe(first());
+source$.subscribe(console.log); // 1
+```
+
+不穿参数默认返回上游`Observable`对象吐出的第一个数据,如果给`first`传入一个判定函数，则和`find`操作符十分相似了
+
+```javascript
+const source$ = range(1, 20).pipe(first(value => value / 4 === 2));
+source$.subscribe(console.log); // 8
+```
+
+不过，`first`在没找到数据时，返回值和`find`大不相同，`find`操作符会返回一个`undefined`，而`first`操作符则直接回抛出一个`EmptyError`错误，好在`filter`还接受第二个参数，作为默认值，而不会抛出错误
+
+```javascript
+const source$ = range(1, 20).pipe(first(value => value === 30, -1));
+source$.subscribe(console.log); // 30
+```
+
+在`RxJS v5`中，`first`操作符还可以接收一个处理函数，比如可以同时返回值和索引，但是在`RxJS v6`中移除掉了
+
+## last
+
+`last`操作符和`first`操作符刚好相反，取的是通过判定函数的最后一个值
+
+```javascript
+import { range } from "rxjs";
+import { last } from "rxjs/operators";
+
+const source$ = range(1, 20).pipe(last());
+source$.subscribe(console.log); // 20
+```
+
+同样也接收一个判定函数
+
+```javascript
+import { interval } from "rxjs";
+import { last, take } from "rxjs/operators";
+
+const source$ = interval(100).pipe(
+  take(10),
+  last(value => !(value % 2))
+);
+source$.subscribe(console.log); // 8
+```
+
+结果是8而不是2、4、6，可以看出确实是最后一个满足的值
+
+同样接收一个默认值
+
+```javascript
+const source$ = range(1, 20).pipe(last(value => value === 30, -1));
+source$.subscribe(console.log); // -1
+```
+
+---
+
+今天看了一个拍的阿里达摩院的视频，真的太牛皮了，23岁博士毕业，这就是天才吧
+
+天才就是百分之一的灵感，和百分之九十九的汗水，对于天才来说，差了百分之一的灵感就不是天才了，但是对于普通人来说，就算有百分之一的灵感也没有卵用，差的是百分之九十九的汗水
+
+天才23岁博士毕业，而凡人小张23岁才幡然醒悟，希望小张的人生，能够在有生之年进入阿里这样的充满技术与氛围的公司吧～
+
+国内的网真是，300Mbps的宽带，上传速度只有100kb，服气服气
