@@ -504,6 +504,10 @@ body {
     h5,
     h6 {
         @include color(color, --text-link-color, $theme-dark-text-link-color);
+        text-transform: initial;
+        &:not(h1) {
+            font-family: -apple-system, "Microsoft YaHei UI", sans-serif;
+        }
     }
     code {
         text-transform: none;
