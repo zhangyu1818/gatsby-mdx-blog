@@ -1,0 +1,187 @@
+---
+title: Create React App v3 学习笔记
+date: 2019-12-12 20:11
+---
+
+不知不觉中，`Create React App`已经从v1到了v3，今天又再一次阅读了文档，将一些常用的配置记录下来
+
+## 创建App
+
+**npx**
+
+```shell
+npx create-react-app my-app
+```
+
+**npm**
+
+```shell
+npm init react-app my-app
+```
+
+`npm`版本大于6可用
+
+**yarn**
+
+```shell
+yarn create react-app my-app
+```
+
+### template
+
+新版`Create React App`提供了`--template [template-name]`的命令行选项
+
+如果没有选择`template`，会使用默认`template`创建
+
+`template`会被命名为`cra-template-[template-name]`，但是你只需要在命令行输入`[template-name]`
+
+> 你可以在npm搜索["cra-template-*"](https://www.npmjs.com/search?q=cra-template-*)找到这些包
+
+ 比如创建`Typescript`的应用，只需要在命令行添加`--template typescript`
+
+```shell
+npx create-react-app my-app --template typescript
+```
+
+###  选择包管理器
+
+`CLI`默认会选择`yarn`作为包管理工具，如果你想使用`npm`，你可以在命令行添加`--use-npm`，如：
+
+```shell
+npx create-react-app my-app --use-npm
+```
+
+## 自动格式化代码
+
+添加`git`钩子来使用`prettier`格式化代码
+
+```shell
+npm install --save husky lint-staged prettier
+```
+
+也可以使用`yarn`
+
+```shell
+yarn add husky lint-staged prettier
+```
+
+- `husky`可以让`npm script`使用githooks
+- `lint-staged`可以在暂存文件的时候运行脚本
+- `prettier`在提交前格式化代码
+
+添加下列字段到`package.json`
+
+```diff
++  "husky": {
++    "hooks": {
++      "pre-commit": "lint-staged"
++    }
++  }
+```
+
+接下来添加`lint-staged`字段到`package.json`
+
+```diff
+"dependencies": {
+    // ...
+  },
++ "lint-staged": {
++   "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
++     "prettier --write",
++     "git add"
++   ]
++ },
+  "scripts": {
+
+```
+
+现在每当你提交代码时，`prettier`会自动格式化代码
+
+## 添加自定义环境变量
+
+添加`.env`文件，在这个文件里定义的变量是自定义变量
+
+自定义变量必须以`REACT_APP_`开头，如
+
+```
+REACT_APP_SITE_NAME=网站
+
+```
+
+在代码中可以使用`process.env.REACT_APP_SITE_NAME`来使用
+
+在`public/index.html`文件中使用自定义变量
+
+```html
+<title>%REACT_APP_SITE_NAME`%</title>
+
+```
+
+更多参考[`dotenv`](https://github.com/motdotla/dotenv)文档
+
+## 添加Sass的支持
+
+```shell
+npm install node-sass --save
+# or
+yarn add node-sass
+
+```
+
+引入`sass`文件的时候可以通过添加`SASS_PATH`来使用绝对路径引入
+
+如果你设置了`SASS_PATH=node_modules:src`，可以像一下方式`import`
+
+```scss
+@import 'styles/colors'; // 从src/styles引入
+@import 'nprogress/nprogress'; // 从node_module引入
+
+```
+
+## CSS Modules
+
+约定名字为`[name].module.css`或者使用`sass`后名为`[name].module.scss` or `[name].module.sass`的文件为`CSS Modules`文件
+
+## 在开发环境使用`HTTPS`
+
+如果接口是`https`的，代理是`http`就发不过去,好在`Create React App`提供了这个功能（虽然chrome会提示不安全）
+
+修改`package.json`中的`npm start`脚本
+
+```json
+{
+  "start": "HTTPS=true react-scripts start"
+}
+```
+
+或者添加`HTTPS=true`到`.env`文件
+
+## 绝对路径的组件引入
+
+因为没有`webpack`的`alias`的配置，所以引入很麻烦，比如`../../../Components/`
+
+现在可以在`jsconfig.json`或者`tsconfig.json`中添加配置来解决这个问题
+
+**`jsconfig.json`**
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": "src"
+  },
+  "include": ["src"]
+}
+
+```
+
+如果使用`Typescript`，就在`tsconfig.json`文件中配置
+
+现在，就可以使用绝对路径引入了
+
+```jsx
+import Button from 'components/Button';
+
+```
+
+
+
