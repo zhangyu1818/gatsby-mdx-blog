@@ -455,6 +455,9 @@ body {
     //
     .post-title {
         margin-top: 0;
+        & + .post-date + p {
+            margin-top: 1.75rem;
+        }
     }
     // 覆盖 typography 样式
     a {

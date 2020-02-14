@@ -26,7 +26,7 @@ const Index = ({ data, pageContext }) => {
         <Layout post>
             <SEO title={frontmatter.title} />
             <h1 className="post-title">{frontmatter.title}</h1>
-            <small>{frontmatter.date}</small>
+            <small className="post-date">{frontmatter.date}</small>
             <MDXRenderer>{body}</MDXRenderer>
             <FooterNavigator>
                 {previous && (
