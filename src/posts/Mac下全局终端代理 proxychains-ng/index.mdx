@@ -1,0 +1,60 @@
+---
+title: Mac下全局终端代理 proxychains-ng
+date: 2020-02-14 22:29
+---
+有时候终端的一些请求会遇到"连接被拒绝"的情况，这时候不得不使用代理了
+
+通常的做法是使用终端的环境变量
+
+```
+export ALL_PROXY=socks5://127.0.0.1:1080
+```
+
+这样在终端是有效的，比如`curl ip.gs`，这时候会返回代理的ip地址，但是在一些情况下很让人头大，例如`npm install`的时候，有些包的下载依旧会出现问题，具体原因也不清楚
+
+这种情况下只能通过全局的代理，在Mac有个软件叫`Proxifier`可以把系统所有的流量都通过代理转发，但是它需要付费
+
+本着开源精神就找到一个开源包 —— proxychains-ng
+
+## 安装
+
+在[Github](https://github.com/rofl0r/proxychains-ng)上，它写的方法是通过源代码编译，但是`brew`上有，就方便很多了
+
+```shell
+brew install proxychains-ng
+```
+
+## 配置
+
+在[Github](https://github.com/rofl0r/proxychains-ng/blob/master/src/proxychains.conf)上有很长的一个配置详情，但是不需要那么多
+
+它的配置文件在`$HOME/.proxychains/proxychains.conf`
+
+```shell
+mkdir $HOME/.proxychains
+```
+
+```shell
+vi $HOME/.proxychains/proxychains.conf
+```
+
+只需要加上代理的地址就行了
+
+```
+[ProxyList]
+socks5 	127.0.0.1 1080
+```
+
+## 使用
+
+在需要代理的命令前加上`proxychains4`，如
+
+```shell
+proxychains4 npm i
+```
+
+这样就完美代理了`npm`命令
+
+---
+
+其实还有一个最简单的方式，通过[outline](https://getoutline.org/)这个应用就可以直接全局代理，简单无脑，速度也行，不过据说这个也只是`shadowsocks`的一层包装，所以还是算了
