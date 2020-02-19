@@ -1,0 +1,330 @@
+---
+title: 《CSS选择器世界》读书笔记
+date: 2020-02-19 13:29
+---
+
+读完了张鑫旭的《CSS选择器世界》，还是学习不少知识，把一些理解不太全面的知识点和例子记录下来
+
+尤其是书中一些伪类都没听过😂
+
+## 选择器优先级
+
+1. 0级：通配选择器、选择符和逻辑组合伪类
+   - 通配选择器：*
+   - 选择符：+、>、~、空格和 ||
+   - 逻辑组合伪类：:not()、:is()和:where等
+2. 1级：标签选择器
+3. 2级：类选择器、属性选择器和伪类
+4. 3级：ID选择器
+5. 4级：style属性内联
+6. 5级：!important
+
+### 增加CSS选择器优先级的小技巧
+
+之前一般都是增加一个标签，如`div.foo`，如果标签改变，就不生效了
+
+小技巧就是重复选择器自身，如`.foo.foo`
+
+### 元素选择器增加优先级的小技巧
+
+元素选择器就是标签选择器和通配符选择器
+
+由于元素选择器不能重复自身，所以无法通过这种方式增加优先级
+
+```css
+.foo.foo {}
+#foo#foo {}
+
+foo*foo {} /* 无效 */
+```
+
+借助`:not()`伪类，括号里面是任意其他不一样的标签名称即可
+
+```css
+foo:not(not-foo) {}
+foo:not(a) {}
+foo:not(_) {}
+```
+
+## 属性选择器
+
+### [attr]
+
+包含指定属性就匹配
+
+```css
+[disabled] {}
+```
+
+### [attr="val"]
+
+属性值完全匹配
+
+```css
+[type="radio"] {}
+[data-type="1"] {}
+```
+
+### [attr~="val"]
+
+属性值单词完全匹配选择器，专门用来匹配属性中的单词
+
+```html
+<a href rel="nofollow noopener">链接</a>
+```
+
+此时可以借助该选择器实现匹配
+
+```css
+[rel~="noopener"] {}
+[rel~="nofollow"] {}
+```
+
+### [attr|="val"]
+
+`[attr|="val"]`是属性值起始片段完全匹配选择器，表示具有attr属性的元素，其值要么正好是val，要么以val外加短横线（-）开头
+
+如`lang`属性，同时需要匹配`zh-Hans`和`zh-Hant`
+
+```html
+<html lang="zh-Hans" />
+<html lang="zh-Hnat" />
+```
+
+可以借助该选择器
+
+```css
+[lang|="zh"] {}
+```
+
+也可以匹配类名
+
+```html
+<button class="button-primary"/>
+<button class="button-success"/>
+<button class="button-warning"/>
+```
+
+```css
+[class|="button"] {} /* 公用样式 */
+```
+
+### [attr^="val"]
+
+`[attr^="val"]`表示匹配attr属性值以字符val开头的元素
+
+```html
+<!-- 匹配 -->
+<div attr="val" />
+<!-- 不匹配 -->
+<div attr="text val" />
+<!-- 匹配 -->
+<div attr="value" />
+<!-- 匹配 -->
+<div attr="val-ue" />
+```
+
+可以用来判断`<a>`元素的小图标
+
+```css
+[href^="http"] {} /* 链接 */
+[href^="#"] {} /* 网页内锚链 */
+[href^="tel:"] {} /* 手机和邮箱 */
+[href^="mailto:"] {}
+```
+
+### [attr$="val"]
+
+`[attr$="val"]`表示匹配attr属性值以字符val结尾的元素
+
+```html
+<!-- 匹配 -->
+<div attr="val" />
+<!-- 匹配 -->
+<div attr="text val" />
+<!-- 不匹配 -->
+<div attr="value" />
+<!-- 不匹配 -->
+<div attr="val-ue" />
+```
+
+可以用来判断链接文件
+
+```css
+[href$=".pdf"] {}
+[href$=".zip"] {}
+```
+
+### [attr*="val"]
+
+`[attr*="val"]`表示匹配attr属性包含字符val的元素
+
+## 伪类
+
+### 整体焦点伪类 :focus-within
+
+`:focus`只在当前元素处于聚焦的时候才匹配，而`:focus-within`在当前元素或者是当前元素的任意子元素处于聚焦时都会匹配
+
+比如普通的输入框在聚焦后，会将输入框的名称`<label>`高亮，一般做法会将`<label>`放在`<input>`后面，通过+选择器来匹配
+
+`:focus-within`伪类在这个问题就很完美
+
+```html
+<div class="cs-normal">
+	<label class="cs-label">用户名：</label>
+	<input class="cs-input">
+</div>
+```
+
+```css
+.cs-normal:focus-within .cs-label {}
+```
+
+也能实现完全无障碍访问的下拉效果，见[CSS世界](https://demo.cssworld.cn/selector/7/4-2.php)
+
+### :focus-visible
+
+比如`<summary>`标签，在点击后会有一个边框，但是期望的效果是这个边框只在键盘聚焦（无障碍访问）的时候才显示
+
+`:focus-visible`就是解决这个问题的
+
+```css
+:focus:not(:focus-visible) {
+	outline: 0;
+}
+```
+
+（截止2020-02-18，Chrome依旧需要打开实验性开关才能支持）
+
+### :any-link
+
+`:any-link`伪类有如下两大特征
+
+- 匹配所有设置了`href`属性的链接元素，包括`<a>`、`<link>`、`<area>`
+- 匹配所有匹配`:link`伪类或者`:visited`伪类的元素
+
+```css
+:any-link{
+	color: white;
+	background-color: deepskyblue;
+}
+```
+
+无论是访问或者没访问过的`<a>`标签都会匹配，如果`<a>`标签没有设置`href`属性，就不会匹配
+
+### :target
+
+`:target`伪类可以匹配和当前锚点值相同id的元素
+
+并且`:target`还能匹配`display:none`的元素
+
+```css
+:target + li {}
+```
+
+利用这个特性可以实现无`javascipt`的收起展开，参考[css世界](https://demo.cssworld.cn/selector/8/3-1.php)
+
+### :placeholder-shown
+
+`:placeholder-shown`和placeholder密切相关，当输入框的placeholder内容显示的时候，匹配该输入框
+
+利用这个伪类可以纯CSS实现Material Design风格的输入框，见[CSS世界](https://demo.cssworld.cn/selector/9/1-1.php)
+
+还可以利用这个伪类判断输入框是否为空
+
+### :default
+
+`:default`伪类用来选中处于默认状态的表单元素，比如希望在默认选中的`<input>`元素后面加上“推荐”
+
+```css
+input:default + label::after{
+	content: "推荐"
+}
+```
+
+这样即使换了默认选中项，也不会影响，见[CSS世界](https://demo.cssworld.cn/selector/9/1-2.php)
+
+## :indeterminate
+
+`:indeterminate`表示复选框的半选状态，就是小短横那种，在HTML中没有原生属性可以设置半选状态，需要使用`javascript`
+
+```javascript
+checkbox.indeterminate = true;
+```
+
+对于单选框来讲默认没选中的时候会匹配`:indeterminate`伪类，如果有单选框被选中，所有单选框都会丢失`:indeterminate`的匹配，利用这个特性，可以在一组单选框都没有选择的时候显示提示信息
+
+### :valid和:invalid
+
+```html
+<input required pattern="\w{4,6}">
+```
+
+如果用户没输入值或者正则匹配不正确，会匹配`:invalid`伪类，否则匹配`:valid`伪类
+
+乍一看很有用，实际上在体验上很糟糕，因为已进入页面输入框没有值，会匹配`:invalid`伪类，所有如果要使用这两个伪类，还是得配合`javascirpt`开启验证结果
+
+### :in-range和:out-of-range
+
+`:in-range`和`:out-of-range`伪类和`min`属性和`max`属性密切相关，因为这两个属性常用来匹配`number`类型或者`range`类型的输入框
+
+```html
+<input type="number" min="1" max="100">
+<input type="range" min="1" max="100">
+```
+
+如果数值在范围内，会匹配`:in-range`伪类，否则匹配`:out-of-range`伪类
+
+如果使用`javascript`动态修改`value`值超出范围，`number`类型会匹配`:out-of-range`伪类，`range`类型不会
+
+在Chrome中，如果`number`类型的输入框类型不匹配，会匹配`:in-range`
+
+### :required和:optional
+
+`:required`匹配设置了`required`属性的表单元素，而`:optional`会匹配没设置`required`的表单元素，甚至是`<button>`都可以匹配
+
+一个利用`:required`和`:optional`实现的可选必选问卷，[CSS世界](https://demo.cssworld.cn/selector/9/3-2.php)
+
+### :empty
+
+`:empty`伪类匹配内容为空的元素（没有空格，没有换行）
+
+比较大的用处可以在某些`ajax`请求的时候显示空的提示
+
+### :only-child
+
+`:only-child`伪类匹配没有任何兄弟元素的元素，有匿名文本也不会影响
+
+一个例子，[CSS世界](https://demo.cssworld.cn/selector/10/3-1.php)
+
+
+
+### :nth-child
+
+用`:nth-child`实现的群聊头像效果，[CSS世界](https://demo.cssworld.cn/selector/10/3-3.php)
+
+### :scope
+
+`:scope`伪类可以在用`javascript`选择元素的时候使用
+
+```html
+<div id="box">
+  <div class="one"></div>
+  <div class="two">
+    <div class="three"></div>
+  </div>
+</div>
+```
+
+现有`DOM`结构如上
+
+```javascript
+document.querySelector("#box").querySelectorAll("div div")
+// => NodeList(3) [div.one, div.two, div.three]
+document.querySelector("#box").querySelectorAll(":scope div div")
+// => NodeList [div.three]
+```
+
+### :fullscreen
+
+`:fullscreen`伪类匹配全屏元素
