@@ -19,7 +19,13 @@ const TextThemeToggle = () => {
     }, []);
 
     return (
-        <span className="text-theme-toggle" onClick={onToggle}>
+        <span
+            tabIndex="-1"
+            role="button"
+            className="text-theme-toggle"
+            onClick={onToggle}
+            onKeyDown={()=>{}}
+        >
             {text === "LIGHT" ? "DARK" : "LIGHT"}
         </span>
     );
