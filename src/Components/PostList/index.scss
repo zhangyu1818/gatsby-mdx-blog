@@ -1,0 +1,51 @@
+.post-list {
+  margin-top: 5rem;
+  display: grid;
+  grid-gap: 1px;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  .post-item {
+    width: 100%;
+    padding-bottom: 100%;
+    background-color: var(--home-bg);
+    box-shadow: 0 0 0 2px var(--home-thirdly-text);
+    transition: 200ms ease-out;
+    position: relative;
+    border-radius: 1px;
+    &:hover {
+      z-index: 2;
+      transform: scale(1.08);
+    }
+    &:active {
+      transform: scale(1.05);
+    }
+    .post-item-content {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      .tag {
+        font-family: "Cinzel";
+      }
+      .date {
+        font-family: "Exo";
+        color: var(--home-secondly-text);
+      }
+      .name {
+        margin: 0;
+        padding-top: 1.7rem;
+        font-size: 1.75rem;
+        line-height: 1.75;
+        text-align: center;
+        flex: 1;
+        color: var(--home-primary-text);
+        font-weight: 400;
+        font-family: Exo, -apple-system, sans-serif;
+      }
+    }
+  }
+}
