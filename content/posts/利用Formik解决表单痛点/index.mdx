@@ -1,6 +1,9 @@
 ---
 title: 利用Formik解决表单痛点
 date: "2019-11-17"
+tags:
+    - Javascript
+    - React
 ---
 
 一直觉得表单问题是非常复杂，如何能够优雅的获取表单的值，又如何能优雅的展示不同的报错信息？
@@ -34,8 +37,8 @@ date: "2019-11-17"
 一个简单的示例
 
 ```jsx
-<Formik 
-    initialValues={{ name: "zy" }} 
+<Formik
+    initialValues={{ name: "zy" }}
     onSubmit={values => console.log(values)}
 >
     {({ handleSubmit, handleChange, handleBlur, values, errors }) => (
@@ -173,7 +176,7 @@ const schema = object().shape({
 
 
 
-### 写一个简单的例子 
+### 写一个简单的例子
 
 介绍了如何使用`<Formik/>`来控制表单状态和使用`useField`来进行组件分离，下面写一个简单的例子
 

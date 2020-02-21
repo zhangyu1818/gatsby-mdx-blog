@@ -1,6 +1,9 @@
 ---
 title: RxJS学习笔记（七）回压控制
 date: 2019-11-27 14:26
+tags:
+    - Javascript
+    - RxJS
 ---
 
 在`RxJS`，数据流可以理解为经过一条一条的管道，如果这个时候，某一处的管道处理速度跟不上数据产生的速度，就会造成在内存中积压数据，相当于对上游施加了压力，在`RxJS`中称之为“回压”
@@ -194,7 +197,7 @@ const source$ = of(
 
 source$.subscribe(console.log);
 //  { count: 0 }
-//  { count: 1 }  
+//  { count: 1 }
 //  { count: 2 }
 ```
 

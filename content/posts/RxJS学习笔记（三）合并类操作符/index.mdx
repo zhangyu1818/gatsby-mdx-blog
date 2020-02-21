@@ -1,6 +1,9 @@
 ---
 title: RxJS学习笔记（三）合并类操作符
 date: "2019-11-07 22:46"
+tags:
+    - Javascript
+    - RxJS
 ---
 
 ## 合并类操作符
@@ -167,7 +170,7 @@ source$.subscribe({
 import { combineLatest, of, interval } from "rxjs";
 // 参数是一个数组
 const source$ = combineLatest([
-  interval(2000), 
+  interval(2000),
   interval(1000)
 ]);
 
@@ -277,8 +280,8 @@ source$.subscribe({
 import { timer, forkJoin } from "rxjs";
 
 const source$ = forkJoin([
-  timer(1000), 
-  timer(2000), 
+  timer(1000),
+  timer(2000),
   timer(3000)
 ]);
 source$.subscribe(value => console.log(value));
