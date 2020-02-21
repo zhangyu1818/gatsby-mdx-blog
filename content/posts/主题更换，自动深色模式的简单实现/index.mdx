@@ -1,0 +1,152 @@
+---
+title: 主题更换，自动深色模式的简单实现
+date: "2019-11-16 22:19"
+---
+
+主题更换是一个感觉比较酷炫的东西，如果说页面的色彩比较丰富，那主题更换时会给人眼前一亮的感觉
+
+在早期，开发人员可能会使用全局`css`样式，来通过加载不同的`css`文件来实现换肤功能，这种实现在新主题文件加载中，也许还会出现延迟情况
+
+在张鑫旭大佬博客也有一篇文章讲到了使用`<link>`的`rel = alternate`属性来实现[^1]，不过感觉将多个主题分`css`样式来实现，应用场景可能是较为大型的页面，就如之前所说的色彩丰富的页面。
+
+博客这样样式简单，色彩较为单一的页面（当然也可以将博客做的很好看），我觉得通过加载不同的`css`样式来实现有些复杂了
+
+所以引出另一种简单的实现方式 —— `var()`函数和`css`变量
+
+## css变量
+
+带有前缀`--`的属性名，比如`--example--name`，表示的是带有值的自定义属性，其可以通过 [`var`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/var) 函数在全文档范围内复用的。[^2]
+
+`css`变量的值需要语法正确合理，不包含非法语句，如`left`、`#fff`、`0 4px 4px 0`
+
+## var函数
+
+`var`函数可以接收2个参数，第一个参数是自定义属性的名称，也就是`css`变量，第二个参数是可选参数，当第一个参数的`css`变量值无效的时候，会使用第二个值，如`var(--text-color,#ccc)`
+
+### 使用方式
+
+```css
+:root{
+  --text-color: #f00;
+}
+body{
+  color: var(--text-color,#ccc)
+}
+```
+
+### 兼容性
+
+兼容性已经是非常好的了，除了IE全线不兼容😂
+
+那么，前置内容已了解，进入正题
+
+## 主题变量
+
+比如，深色模式背景是黑色，浅色模式是白色，应该如何实现呢？
+
+```css
+body.dark{
+  --bg: #000;
+}
+body.light{
+  --bg: #fff;
+}
+
+body{
+  color: var(--bg);
+}
+```
+
+当`body`的类名为`dark`的时候，会使用`--bg: #000`这一行自定义属性，`body`的类名为`light`的时候，会使用`--bg: #fff`这一行属性，简单的主题切换功能就实现了
+
+在`css`预处理器横行的时代，自然使用预处理器更加方便
+
+## 使用scss对css变量加工
+
+```scss
+/* variable.scss */
+// light
+$theme-light-bg: #fafafa;
+// dark
+$theme-dark-bg: #232b32;
+```
+
+这样，定义了两套不同色彩的`scss`变量，对应浅色模式和深色模式
+
+```scss
+/* utils.scss */
+@import "./variable";
+
+@mixin color($property, $var, $fallback) {
+    #{$property}: $fallback; // 如果不支持css变量则使用这一行
+    #{$property}: var($var, $fallback);
+}
+```
+
+这里定义3个`mixin`
+
+- `color` 用于将属性和值对应并且做一个回退处理
+- `darkTheme` 定义深色主题的自定义变量
+- `lightTheme` 定义浅色主题的自定义变量
+
+### 使用
+
+```scss
+@import "../scss/utils";
+
+body {
+    // backgournd-color使用的css变量是--bg
+    // 如果浏览器不支持或者css变量失效，会使用$theme-dark-bg
+    @include color(background-color, --bg, $theme-dark-bg);
+      &.light {
+        --bg: #{$theme-light-bg};
+  		}
+      &.dark {
+        --bg: #{$theme-dark-bg};
+  		}
+}
+```
+
+这样简单的主题更换功能已经实现了，在给`body`切换`dark`和`light`类名时，就会显示不同的背景
+
+## 自动深色模式
+
+之前我的博客主题是基于`localStorage`来保存状态的，在用户点击切换主题按钮后会将当前值存下来，下次进入恢复
+
+前段时间了解到一个`css`媒体查询值，叫做`prefers-color-scheme`，不过这个媒体查询的支持是相当惨淡，几乎也就是这几个月的事情
+
+那它的作用是什么呢？他可以判断用户当前系统的主题颜色是light还是dark，不过我估计这个只在`mac`和`iphone`上才生效，`mac`大法好哈哈，那既然如此，干脆就在苹果系列上跟随系统主题，不支持就根据时间来判断
+
+```javascript
+// 获取系统主题
+const getThemeByOS = () => {
+    let pref = window.matchMedia("(prefers-color-scheme: dark)");
+    if (pref.matches) return "dark";
+    pref = window.matchMedia("(prefers-color-scheme: light)");
+    if (pref.matches) return "light";
+};
+
+// 根据时间判断主题
+const getThemeByTime = () => {
+    const hour = new Date().getHours();
+    if (hour > 17 || hour < 6) return "dark";
+    return "light";
+};
+
+// 获取主题
+const getTheme = () => {
+    let theme = getThemeByOS();
+    if (!theme) theme = getThemeByTime();
+    return theme;
+};
+```
+
+`matchMedia`函数可以使用`javascript`来获取媒体查询的结果，见[`MDN`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/matchMedia)
+
+这样基础功能就实现了，在此基础上，还可以增加更多的功能，比如切换时的`transition`，如果浏览器打开了2个`tab`页，一个`tab`修改主题，另一个也要同步，不说了，我去实现了
+
+话说，今天看见云谦大佬了，除了在B站看他的教学外，第一次肉眼看见真人，真的激动，我一定要继续努力，拼命学习，想要有朝一日能进大公司💪
+
+[^1]:  [link rel=alternate网站换肤功能最佳实现](https://www.zhangxinxu.com/wordpress/2019/02/link-rel-alternate-website-skin/)
+[^2]: [自定义属性 (--*)：CSS变量](https://developer.mozilla.org/zh-CN/docs/Web/CSS/--*)
+

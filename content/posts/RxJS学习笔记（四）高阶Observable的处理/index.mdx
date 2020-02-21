@@ -1,0 +1,114 @@
+---
+title: RxJS学习笔记（四）高阶Observable的处理
+date: "2019-11-15 21:23"
+---
+
+## 什么是高阶Observable
+
+理解高阶`Observable`之前，先讲一讲高阶函数，如果使用`redux`，就能知道其中的`connect`方法就是一个高阶函数，高阶函数会接受一个函数作为参数，然后返回一个新的函数
+
+高阶`Observable`依旧是一个`Observable`，如果高阶函数一样，他接收的是一个`Observable`，返回另一个`Observable`
+
+在我看来，高阶`Observable`可以简单理解为返回另一个`Observable`的`Observable`
+
+```javascript
+const source$ = new Observable(subscriber => {
+  subscriber.next(timer(1000).pipe(mapTo("A")));
+  subscriber.next(timer(1000).pipe(mapTo("B")));
+  subscriber.next(timer(1000).pipe(mapTo("C")));
+});
+source$.subscribe(value => console.log(value));
+```
+
+如上代码中，每次输出的都是一个`Observable`对象，无法直接拿到值，如果要拿到值，那必须再订阅这个`Observable`
+
+如果每次都订阅新的`Observable`，这样是很麻烦的，不仅难管理，合并值也很麻烦，好在`RxJS`提供了专门用来处理高阶`Observable`的方法
+
+## concatAll
+
+按照顺序，依次的将高阶`Observable`内部的`Observable`转为一阶`Observablee`
+
+```javascript
+import { of, interval } from "rxjs";
+import { concatAll, map, take } from "rxjs/operators";
+
+const source$ = of("a", "b", "c").pipe(
+  map(x =>
+    interval(1000).pipe(
+      take(2),
+      map(y => `${x} - ${y}`)
+    )
+  ),
+  concatAll()
+);
+source$.subscribe(value => console.log(value));
+// 1秒后 a - 0
+// 1秒后 a - 1
+// 1秒后 b - 0
+// 1秒后 b - 1
+// 1秒后 c - 0
+// 1秒后 c - 1
+```
+
+`concatAll`主要的特点就是会依次的吐出
+
+## mergeAll
+
+`mergeAll`的特点就是，内部的`Observable`对象的不是依次的吐出了，而是并发的吐出数据
+
+```javascript
+import { of, interval } from "rxjs";
+import { map, mergeAll, take } from "rxjs/operators";
+
+const source$ = of("a", "b", "c").pipe(
+  map(x =>
+    interval(1000).pipe(
+      take(2),
+      map(y => `${x} - ${y}`)
+    )
+  ),
+  mergeAll()
+);
+source$.subscribe(value => console.log(value));
+// 一秒后
+//a - 0  b - 0  c - 0
+// 又一秒后
+//a - 1  b - 1  c - 1
+```
+
+## zipAll
+
+`zipAll`和`zip`一样，会堆积等待数据吐出，输出是一一对应的数组
+
+```javascript
+import { of, interval } from "rxjs";
+import {map, take, zipAll} from "rxjs/operators";
+
+const source$ = of("a", "b", "c").pipe(
+  map(x =>
+    interval(1000).pipe(
+      take(2),
+      map(y => `${x} - ${y}`)
+    )
+  ),
+  zipAll()
+);
+source$.subscribe(value => console.log(value));
+// 一秒后
+//  ["a - 0", "b - 0", "c - 0" ]
+// 又一秒后
+//  ["a - 1", "b - 1", "c - 1"]
+```
+
+高阶的`Observable`深晦且难以理解，不结合弹珠图和实际运用，感觉根本没法真正的理解
+
+一个很不错的弹珠图[网址](https://rxviz.com/examples/custom)
+
+我也需要再加深理解了，这一篇笔记感觉水水的，最近状态不好，意志消沉，这一周都没怎么学习，每天就在新需求和改需求中挣扎，劳累
+
+计划的图片转储到oss迟迟难以得以实施，这周末要去听一个「web全栈开发者大会」，最最让人期待的就是明天早上阿里云谦的演讲，云谦大佬是我的偶像，`dva`和`umi`都好用爆了，如果能近距离仰望一下，可能会让我更有干劲更憧憬大公司吧
+
+
+
+
+

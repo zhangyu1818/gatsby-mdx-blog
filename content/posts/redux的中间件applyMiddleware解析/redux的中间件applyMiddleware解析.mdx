@@ -1,0 +1,236 @@
+---
+title: redux的中间件applyMiddleware解析
+date: 2019-12-08 14:48
+---
+
+最近在阅读`redux`的源码，觉得十分的精妙，但是也看出了自己对`Typescript`的理解还不到位
+
+其中中间件部分的代码，第一次让我感觉到了心灵的冲击，原来代码可以这么的精巧绝伦
+
+以前自己封装过一个简单的请求方法，中间件的实现就low的不谈了，创建一个前置中间件的数组，再创建一个后置中间件的数组，请求前遍历掉用前置数组，请求后遍历掉用后置数组，真的捞的淌口水
+
+## redux的中间件实现
+
+先来看看源码，为了看上去直观一点，我把`ts`的类型给去掉了
+
+```javascript
+// 组合中间件函数的工具函数
+// 把单参数函数从右到左嵌套调用
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    // infer the argument type so it is usable in inference down the line
+    return arg => arg;
+  }
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+  return funcs.reduce((a, b) => (...args) => a(b(...args)));
+}
+
+export default function applyMiddleware(...middlewares) {
+  return createStore => (reducer, ...args) => {
+    // 这里接管了store的创建
+    const store = createStore(reducer, ...args);
+    // 这里做一个错误处理
+    // 如果在绑定中间件的时候调用dispatch会报错
+    let dispatch = () => {
+      throw new Error(
+        "Dispatching while constructing your middleware is not allowed. " +
+          "Other middleware would not be applied to this dispatch."
+      );
+    };
+
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (action, ...args) => dispatch(action, ...args)
+    };
+    // 将dispatch和getStore方法传入中间件，得到新的数组
+    const chain = middlewares.map(middleware => middleware(middlewareAPI));
+    // 将新的数组用compose绑定起来，再把store.dispatch传入，得到新的dispatch
+    dispatch = compose(...chain)(store.dispatch);
+    // 返回新的dispatch，这个dispatch会触发中间件
+    return {
+      ...store,
+      dispatch
+    };
+  };
+}
+```
+
+这个`applyMiddleware`函数接受不定参数的函数作为参数，返回一个新的函数，这个新的函数会接受`createStore`函数作为参数
+
+使用了`applyMiddleware`函数后，`redux`的`createStore`创建`store`就移交给`applyMiddleware`函数处理了
+
+中间件函数接受的参数是`dispatch`和`getState`函数，并且返回一个新的函数
+
+来看看中间件函数应该怎么写
+
+```javascript
+const doNothingMiddleware = middlewareApi => next => action =>
+  next(action);
+```
+
+这里的`middlewareApi`就是下面这段传入的`dispatch`函数和`getState`函数
+
+```javascript
+const chain = middlewares.map(middleware => middleware(middlewareAPI));
+```
+
+这里对所有中间件传了`dispatch`和`getState`，中间件返回的新函数里，可以闭包使用这两个函数
+
+其实中间件的实现，只用了一行代码
+
+```javascript
+dispatch = compose(...chain)(store.dispatch);
+```
+
+重点就在于这个`compose`函数
+
+## compose函数
+
+```javascript
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    // infer the argument type so it is usable in inference down the line
+    return (arg) => arg;
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+
+  return funcs.reduce((a, b) => (...args) => a(b(...args)));
+}
+
+```
+
+这个函数作用简单来讲，就是把单参数函数从右到左嵌套调用
+
+举个例子
+
+```javascript
+const a = str => str + "A";
+const b = str => str + "B";
+const c = str => str + "C";
+
+const composed = compose(a, b, c); // (...args)=> a(b(c(...args))
+
+composed("args"); // => argsCBA
+```
+
+一步一步解析，这里有3个函数，所以`reduce`会遍历2次
+
+第一次
+
+```javascript
+f1 = (...args) => a(b(...args))
+```
+
+第二次
+
+```javascript
+f2 = (...args) => f1(c(...args)) // 也就是 a(b(c(...args))
+```
+
+以此类推
+
+这只是简单的一个示例，实际上需要更复杂的例子才能理解`redux`是如何实现中间件的
+
+### 从代码理解
+
+先实现一个简单的中间件功能
+
+```javascript
+// 组合函数，没有做参数个数的判断
+const compose = (...funcs) =>
+  funcs.reduce((a, b) => (...args) => a(b(...args)));
+// 中间件A
+const middlewareA = next => action => {
+  console.log("before middlewareA");
+  console.log("middlewareA action =>", action);
+  next(action);
+  console.log("after middlewareA");
+};
+// 中间件B
+const middlewareB = next => action => {
+  console.log("before middlewareB");
+  console.log("middlewareB action =>", action);
+  next(action);
+  console.log("after middlewareB");
+};
+// 处理的函数
+const handle = () => {
+  console.log("处理中");
+  console.log("处理完毕");
+};
+// 通过compose后，具有中间件功能的函数
+const dispatch = compose(middlewareA, middlewareB)(handle);
+
+dispatch({ type: "study" });
+```
+
+结果还是符合预期的
+
+```text
+before middlewareA
+middlewareA action => { type: 'study' }
+before middlewareB
+middlewareB action => { type: 'study' }
+处理中
+处理完毕
+after middlewareB
+after middlewareA
+```
+
+其实我觉得比较难理解的地方，是在中间件函数又返回了一个新的函数这里
+
+这个`next`，就是接受到的参数，`next`必须是一个函数，因为需要嵌套的调用
+
+如果把示例的代码平铺开来，应该是这样的
+
+```javascript
+const composedMiddlewareA = action => {
+    console.log("before middlewareA");
+    console.log("middlewareA action =>", action);
+    // 这里的next，其实是一个函数参数，也就是middlewareB
+    // 因为调用了compose后的函数，所以这里的函数已经是返回的新函数了
+    // next(action)
+    (action => {
+        console.log("before middlewareB");
+        console.log("middlewareB action =>", action);
+        // 调用middlewareB的next
+        // middlewareB的参数，就是调用组合后函数传入的参数，在这里就是handle函数
+        // next(action)
+        (() => {
+            console.log("处理中");
+            console.log("处理完毕");
+        })();
+        console.log("after middlewareB");
+    })(action);
+    console.log("after middlewareA");
+};
+```
+
+这样就一目了然了，从A函数开始，A函数接收了`action`参数，在调用`next`参数的时候，将`action`传入，这个`next`就是A函数接收的参数，也就是B函数返回的新函数，在B函数里又调用了`next`函数，因为只有两个中间件，所以这里的`next`就是`handle`函数
+
+中间件的思路理清楚后，再看`redux`的中间件就很清楚了，它的中间件又额外接收一个参数`middlewareAPI`返回了个新函数，让中间件函数拥有`dispatch`和`getState`的能力
+
+当我明白了这个原理后，我再看见`redux-thunk`的源码只有十行的时候，已经在预期之中了
+
+`redux-thunk`的简单实现
+
+```javascript
+const thunk = ({ dispatch, getState }) => next => action =>
+  typeof action === "function" ? action(dispatch, getState) : next(action);
+```
+
+当`action`是函数的时候，将`dispatch`和`getState`传入，原理就是这么简单
+
+不过似乎中间件还有中间件，就像`composeWithDevTools(applyMiddleware(thunk, logger))`这样，用了浏览器的`redux-dev-tool`，又对`applyMiddleware`中间件再来了一次中间件
+
+
+
+`redux`的源码，简直是闭包的典范，几乎全是闭包，我觉得写的是相当的牛皮了，中间件的实现简直是精妙绝伦
+
+macbook居然自己烧焦了，迷醉，不得不承认，没有mac的日子很难受，已经有点不习惯windows了……
+

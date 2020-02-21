@@ -1,0 +1,109 @@
+---
+title: Trojan的搭建
+date: 2020-02-14 14:23
+---
+
+## 前期准备
+
+1. 一台Linux服务器（VPS）
+2. 域名并做好域名解析
+
+## 安装Nginx
+
+我使用的是Ubuntu 18.04LTS，在Nginx[官方文档](http://nginx.org/en/linux_packages.html#Ubuntu)有很详细的步骤
+
+安装完成后启动Nginx
+
+```bash
+sudo service nginx start
+```
+
+访问域名看看有没有Nginx的欢迎页
+
+## 申请ssl证书
+
+[Let's Encrypt](https://letsencrypt.org/)是一个免费的ssl证书颁发组织
+
+在Linux服务器上，使用certbot能够很轻松生成证书
+
+1. 进入[Certbot](https://certbot.eff.org/instructions)安装文档
+2. 选择对应的http服务软件和Linux系统
+3. 按照下方步骤进行
+
+我选择的是Ubuntu 18.04LTS + Nginx [步骤文档](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx)
+
+并在文档步骤4中选择的第二种
+
+```bash
+sudo certbot certonly --nginx
+```
+
+执行后，证书存放在`/etc/letsencrypt/live/YOUR-DOMAIN`文件夹
+
+## 安装trojan
+
+在github的wiki上有简单的[教程](https://github.com/trojan-gfw/trojan/wiki)
+
+### 一键脚本
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quickstart/master/trojan-quickstart.sh)"
+```
+
+默认的配置文件在`/usr/local/etc/trojan/config.json`，需要修改其中的密码和证书路径
+
+1. `sudo vim /usr/local/etc/trojan/config.json`
+2. 修改`password`字段和`ssl`中的`cert`、`key`字段
+
+### 启动服务
+
+```bash
+sudo service trojan start
+```
+
+看看服务是否正常启动
+
+```bash
+sudo service trojan status
+```
+
+如果看见是绿色的`Active:active(running)`就是启动成功了
+
+## 优化速度
+
+Ubuntu 18.04LTS开启`BBR`优化速度
+
+### 查看内核
+
+```bash
+uname -r
+```
+
+ 需要内核大于4.9
+
+### 开启BBR
+
+修改配置文件
+
+```bash
+sudo vim /etc/sysctl.conf
+```
+
+看看文件里有没有下三行，没有就加上
+
+```
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_notsent_lowat = 16384
+```
+
+保存
+
+```bash
+sudo sysctl -p
+```
+
+## 客户端
+
+现在官方提供的客户端也只有命令行，上网需要配合浏览器插件
+

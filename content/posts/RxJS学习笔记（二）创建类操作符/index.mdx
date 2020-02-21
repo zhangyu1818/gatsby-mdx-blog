@@ -1,0 +1,281 @@
+---
+title: RxJS学习笔记（二）创建类操作符
+date: "2019-11-06 22:10"
+---
+
+## 操作符
+
+简单来讲，操作符就是解决某个具体应用问题的模式，在针对不同问题时，需要使用不同的操作符，如合并、过滤、异常捕获等
+
+我的理解就是，如果把一个`Observalbe`比做一个数组，那么操作符就是数组的方法，可以使用`map`、`filter`、`forEach`来对这个数组进行操作
+
+操作符大致分为以下几类
+
+1. 创建类
+2. 转化类
+3. 过滤类
+4. 合并类
+5. 多播类
+6. 错误处理类
+7. 辅助工具类
+8. 条件分支类
+9. 数学和合计类
+
+## 创建类
+
+如果使用`new Observable`这样的方式来创建，定制性很高，如果只是使用一些简单的数据来创建`Observable`，那么`RxJS`中提供了专门用来创建`Observable`的操作符
+
+**部分操作符接受一个可选参数`**scheduler**`，不过我暂时没有学习，所以先忽略掉**
+
+### of
+
+`of`操作符可以指定固定的数据来创建`Observable`对象
+
+```javascript
+import { of } from "rxjs";
+
+const source$ = of(1, 2, 3);
+source$.subscribe(value => console.log(value));
+// 1	2	 3
+```
+
+### range
+
+`of`是指定数据，`range`则是指定一个范围
+
+```javascript
+import { range } from "rxjs";
+
+const source$ = range(5, 10);
+source$.subscribe(value => console.log(value));
+// 5	6  7  8  ...  14
+```
+
+`range`函数接受 2 个可选参数，第一个参数为起始值，默认值为 0，第二个参数为个数，默认值为`undefined`
+
+后续的每一个数都会加 1，向上述例子，从 5 开始，每次加 1，知道个数达到 10 个，也就是到达数字 14 时结束
+
+### generate
+
+`range`可以连续的创建数字，如果想要每次输出相隔两个数字呢？
+
+`generate`就像是`RxJS`中的`for`循环
+
+```javascript
+import { generate } from "rxjs";
+
+const source$ = generate(0, x => x < 10, x => x + 1);
+source$.subscribe(value => console.log(value));
+// 0 1 2 3 4 5 6 7 8 9
+```
+
+`generate`可接受 4 个参数，第一个参数为初始值，第二个参数为判断条件，第三个参数为值的递增，第四个参数可以是结果的处理函数
+
+```javascript
+const source$ = generate(0, x => x < 10, x => x + 1, x => x * 10);
+source$.subscribe(value => console.log(value));
+// 0 10 20 30 40 50 60 70 80 90
+```
+
+增加第四个参数后，输入会根据处理函数的返回值
+
+相较于`for`循环来看，`RxJS`中的`generate`更纯了，函数式，比如`for`循环，每次都会对条件变量做处理，所以不能用`const`
+
+### repeat
+
+`repeat`可以对上游的数据进行重复的输出，如果想要一个`1,2,3,1,2,3,1,2,3`的数据，用`of`当然是可以做，但是用`repeat`更加清晰
+
+```javascript
+import { of } from "rxjs";
+import { repeat } from "rxjs/operators";
+
+const source$ = of(1, 2, 3).pipe(repeat(3));
+source$.subscribe(value => console.log(value));
+// 1 2 3 1 2 3 1 2 3
+```
+
+重复 3 次`of(1,2,3)`的数据，这里调用了一个函数叫`pipe`，在`RxJS v5`中，这里的调用方式应该是
+
+`of(1, 2, 3).repeat(3)`
+
+就是链式操作，但在`RxJS v6`中，需要使用`pipe`操作符来，`pipe`就是一个管道，数据从管道进入，进过处理，再从管道出去
+
+### EMPTY、NEVER、throwError
+
+`EMPTY`是直接返回一个完成的`Observable`，会直接调用观察者的`completed`函数
+
+`NEVER`则是返回一个永不完结的`Observable`，不会调用观察者的任何函数
+
+`throwError`是抛出一个错误，如果观察者有`error`函数则调用，否则抛出一个错误
+
+```javascript
+import { EMPTY, NEVER, throwError } from "rxjs";
+
+const source1$ = EMPTY;
+const source2$ = NEVER;
+const source3$ = throwError("error");
+source1$.subscribe({
+    complete() {
+        console.log("completed");
+    },
+});
+source2$.subscribe(value => console.log(value));
+source3$.subscribe({
+    error(err) {
+        console.log(err);
+    },
+});
+// completed
+// 什么都没有
+// error
+```
+
+### interval 和 timer
+
+上面的操作符，都是产生同步数据的，最简单的产生异步数据的方法就是`interval`和`timer`，从名字可以看出，它们的功能和`setInterval`和`setTimeout`类似
+
+#### interval
+
+```javascript
+import { interval } from "rxjs";
+
+const source$ = interval(1000);
+source$.subscribe(value => console.log(value));
+// 0 1 2 3 4 ...
+```
+
+`interval可接受1个参数，如上每隔`1000ms`输出依次，从 0 开始，每次加 1
+
+1 秒后输出 0，再一秒后输出 1，再一秒后输出 2...永不完结
+
+#### timer
+
+```javascript
+import { timer } from "rxjs";
+
+const source$ = timer(1000);
+source$.subscribe(value => console.log(value));
+// 0
+```
+
+`timer`可接受 2 个参数，不同的是第一个参数可以为数字，也可以为`Date`对象，如果是数字，则代表毫秒，等待相应时间后输出 0
+
+上例中，一秒后输出 0，完结
+
+第二个参数则是周期，如果有第二个参数，`timer`也能用不完结
+
+```javascript
+const source$ = timer(1000, 1000);
+source$.subscribe(value => console.log(value));
+// 0 1 2 3 4 ...
+```
+
+这样的效果就和`interval`一样了
+
+### from
+
+`from`可以把一个像`Observable`的参数，转为真正的`Observable`对象
+
+一个数组像`Observable`，一个伪数组对象也像，字符串也像，`Promise`也，都可以通过`from`转为真正的`Observable`对象
+
+**数组**
+
+```javascript
+import { from } from "rxjs";
+
+const source$ = from([1, 2, 3]);
+source$.subscribe(value => console.log(value));
+// 1 2 3
+```
+
+**伪数组**
+
+```javascript
+const source$ = from({
+    0: 0,
+    1: 1,
+    2: 2,
+    length: 3,
+});
+source$.subscribe(value => console.log(value));
+// 1 2 3
+```
+
+**字符串**
+
+```javascript
+const source$ = from("hello RxJS");
+source$.subscribe(value => console.log(value));
+// h e l l o   R x J S
+```
+
+**`Promise`**
+
+```javascript
+const source$ = from(Promise.resolve("resolve"));
+source$.subscribe(value => console.log(value));
+// 输出resolve
+```
+
+这里的`Promise`是`resolve`的，如果是`reject`，则会触发抛出错误或调用观察者的`error`函数
+
+```javascript
+const source$ = from(Promise.reject("reject"));
+source$.subscribe(value => console.log(value));
+// 抛出错误reject
+```
+
+### fromEvent
+
+`fromEvent`可以把网页中的`DOM`事件转化为`Observalbe`对象
+
+```javascript
+import { fromEvent } from "rxjs";
+
+const source$ = fromEvent(document, "click");
+source$.subscribe(value => console.log(value));
+// MouseEvent
+```
+
+`fromEvent`可以接受 3 个参数，第一个参数为事件的`DOM`对象，第二个参数为事件的名称，第三个参数是`EventListenerOptions`
+
+```javascript
+const source$ = fromEvent(document, "click", { once: true });
+source$.subscribe(value => console.log(value));
+```
+
+如这个事件因为传入了第三个参数，只会触发一次
+
+### repeatWhen
+
+`repeat`能够重复订阅上游的`Observable`，但是不能控制订阅时间，如等待 2 秒再重新订阅
+
+`repeatWhen`就可以满足上面的需求
+
+```javascript
+import { of } from "rxjs";
+import { delay, repeatWhen } from "rxjs/operators";
+
+const source$ = of(1, 2, 3).pipe(
+    repeatWhen(notifications => notifications.pipe(delay(2000)))
+);
+source$.subscribe(value => console.log(value));
+// 1 2 3 等待2秒 1 2 3
+```
+
+当上游`Observable` `completed`的时候，会传给`repeatWhen`一个`notifications`参数，这个参数也是`Observable`对象
+
+### defer
+
+`defer`可以只在观察中订阅的时候才创建`Observable`对象，通常用于`Observable`工厂函数
+
+```javascript
+import { defer, fromEvent, interval } from "rxjs";
+
+const clicksOrInterval = defer(function() {
+    return Math.random() > 0.5 ? fromEvent(document, "click") : interval(1000);
+});
+clicksOrInterval.subscribe(x => console.log(x));
+```
+
+刷新页面后，可能输出`MouseEvent`，也可能输出`interval`的数字

@@ -1,0 +1,268 @@
+---
+title: 利用Formik解决表单痛点
+date: "2019-11-17"
+---
+
+一直觉得表单问题是非常复杂，如何能够优雅的获取表单的值，又如何能优雅的展示不同的报错信息？
+
+幸好现在是框架时代，如果用`jQuery`来做，想想也复杂
+
+以前写`PC`端页面，多是管理系统，表单的处理非常的简单了，因为有`ant design`，我觉得`ant-design`在后台管理的ui框架中，是王者级别的，它的处理非常的简单，表单错误信息也展现的如此的完美
+
+但是最近一直在做微信端的页面，自然用不了`ant-design`，表单验证就比较复杂，刚开始不知道天高地厚，自己造了个`useForm`的轮子，博客也有记录，就是一个非常简单的轮子，后来功能越来越多，也就越改越乱，索性放弃了
+
+后来才发现，其实针对表单问题，在`github`有非常多的解决方案，其中在我发现的方案中，`star`最多的是[`formik`](https://github.com/jaredpalmer/formik)
+
+## Formik
+
+`formik`的描述是
+
+> Build forms in React, without the tears 😭
+
+它主要解决3个问题
+
+1. 从`form`状态树的内部或外部获取数据
+2. 验证并输出错误信息
+3. 处理表单的提交
+
+使用`formik`后，整个表单的状态就由它接管了，`values`、`submit`、`errors`，表单组件`onChange`都被接管，也控制整个表单的更新
+
+`formik`主要有2种使用方式，一种是[`render props`](https://reactjs.org/docs/render-props.html)，另一种则是趋势之`hooks`，它的状态保存使用的是`React`的`Context`
+
+### render props示例
+
+一个简单的示例
+
+```jsx
+<Formik 
+    initialValues={{ name: "zy" }} 
+    onSubmit={values => console.log(values)}
+>
+    {({ handleSubmit, handleChange, handleBlur, values, errors }) => (
+        <form onSubmit={handleSubmit}>
+            <input
+                type="text"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.name}
+                name="name"
+            />
+            {errors.name && <div>{errors.name}</div>}
+            <button type="submit">Submit</button>
+        </form>
+    )}
+</Formik>
+```
+
+`Formik`组件接收2个必需的`props`
+
+1. `initialValues` 表单的初始值
+2. `onSubmit` 表单的提交事件
+
+对于表单控件值和控制的判断是根据表单控件的`name`属性
+
+`render props`其实就是把`props.children`当作函数调用，传入的`props`非常多，举几个常用的
+
+1. `handleSubmit: (e: React.FormEvent) => void` 提交表单，`formik`会判断仅当表单数据通过验证的时候才会调用函数
+
+2. `handleReset: () => void` 重置表单
+
+3. `handleChange: (e: React.ChangeEvent) => void`  表单控件`onChange`函数
+
+4. `handleBlur: (e: any) => void` 表单控件`onBlur`失焦函数，如果需要使用`touched`，这个函数是必要的
+
+5. `values: { [field: string]: any }` 表单的值
+
+6. `touched: { [field: string]: boolean }` 表单控件是否被点击过
+
+7. `errors: { [field: string]: string }` 表单的错误信息
+
+8. `isSubmitting: boolean` 表单提交事件是否正在`pending`，`formik`会等待传入的`onSubmit`事件执行完毕，这个值会从函数开始调用 -> `true` -> 调用结束 -> `false`，很方便的用在`loading`状态的展示
+
+#### formik控制自定义组件
+
+最简单的方式，就是将需要的值`value`和改变值的`handleChange`作为`props`传入组件，不过这种方式就很笨，`formik`也同样提供了`render props`和`hooks`两种方式
+
+##### Field
+
+`render props`的方式，不多介绍
+
+##### useField()
+
+`hooks`的方式，一个简单的例子
+
+```jsx
+const TextField = (props) => {
+    // 返回 <input /> 需要的props
+    const [field, meta] = useField(props.name);
+    return (
+        <>
+            <input {...field} {...props} />
+            {meta.error && meta.touched && <div>{meta.error}</div>}
+        </>
+    );
+}
+```
+
+`useField`接受一个参数，即是表单控件的`name`属性，`formik`是根据`name`来判断哪一个组件对应哪一个值的，这个`name`值必须和传入`<Formik/>`的`initialValues`的一个字段相同
+
+它返回一个2个元素的数组，分别是`FieldProps`和`FieldMetaProps`，以下分别列举几个常用的
+
+**`FieldProps`**
+
+- `value: any` 当前`name`对应的表单值
+- `onChange: (e: React.ChangeEvent<any>) => void` 控制值改变的`onChange`事件
+- `onBlur: () => void;` 失焦`onBlur`事件
+
+**`FieldMetaProps`**
+
+- `touched: boolean` 是否点击过组件
+- `error?: string` 有错误信息是`string`，没有是`undefined`
+
+### 表单的验证
+
+表单的验证也是一个比较麻烦的事情，因为一个字段可能有多种错误信息，如`至少4位`、`最多6位`、`不能为空`
+
+`formik`也提供了验证`props` —  `validate`，接收一个函数，这个函数接受1个必要参数`values`，返回一个`errors`对象，如果`errors`对象里的键名和表单字段对应，则会将`error`传给对应的表单控件
+
+```jsx
+<Formik
+  initialValues={{ password: "" }}
+  validate={values => {
+    const errors = {};
+    if (!values.password) {
+      errors.password = "不能为空";
+    } else if (values.password.length < 4) {
+      errors.password = "至少4位";
+    } else if (values.password.length > 6) errors.password = "最多6位";
+    return errors;
+  }}
+  onSubmit={console.log}
+  >
+  ...
+</Formik>
+```
+
+
+
+如上所示，如果使用`if-else`来完成多种错误信息的判断，那代码也太冗长了，一旦有变化，修改起来也很麻烦，好在`formik`内置了一个非常不错的验证方案[`yup`](https://github.com/jquense/yup)，这里不再多做介绍，直接看例子
+
+```jsx
+// yup schema
+const schema = object().shape({
+    password: string()
+        .min(4, "至少4位")
+        .max(6, "最多6位")
+        .required("不能为空")
+});
+
+// Formik
+  <Formik
+    initialValues={{ password: "" }}
+    validationSchema={schema}
+    onSubmit={console.log}
+  >
+      ...
+  </Formik>
+);
+```
+
+与自己写验证函数不同的是，使用`yup`对应的`prop`是`validationSchema`
+
+使用这些强大的库，一切都变得美妙了起来
+
+
+
+### 写一个简单的例子 
+
+介绍了如何使用`<Formik/>`来控制表单状态和使用`useField`来进行组件分离，下面写一个简单的例子
+
+**自定义`input`组件**
+
+```jsx
+const TextField = ({ name, label, type = "text", ...props }) => {
+    const [field, meta] = useField(name);
+    const error = meta.error && meta.touched;
+    return (
+        <div className="text-field">
+            <label className="text-field-label">
+                <div className="text-field-name">{label}</div>
+                <input
+                    className={error ? "error" : undefined}
+                    name={name}
+                    type={type}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    {...props}
+                />
+            </label>
+            {error && <div className="text-field-error">{meta.error}</div>}
+        </div>
+    );
+};
+```
+
+**使用`yup`来验证**
+
+```jsx
+const loginSchema = object().shape({
+    phone: string()
+        .length(11, "请输入11位手机号")
+        .required("请输入手机号"),
+    password: string()
+        .min(4, "密码至少4位")
+        .max(6, "密码最多6位")
+        .required("请输入密码"),
+});
+```
+
+**使用`Formik`**
+
+```jsx
+const FormikExample = () => (
+    <Formik
+        initialValues={{ phone: "", password: "" }}
+        onSubmit={values =>
+            new Promise(resolve =>
+                setTimeout(() => resolve(alert(JSON.stringify(values))), 1000)
+            )
+        }
+        validationSchema={loginSchema}
+    >
+        {({ handleSubmit }) => (
+            <form onSubmit={handleSubmit} className="formik-example-form">
+                <TextField label="手机号" name="phone" />
+                <TextField label="密码" name="password" />
+                <button className="formik-submit" type="submit">
+                    提交
+                </button>
+            </form>
+        )}
+    </Formik>
+);
+```
+
+`onSubmit`函数如果返回一个`Promise`或者是`async/await`函数，`formik`会自动处理`isSubmitting`，如果使用异步函数的话，还需要接收第二个参数，里面有一个`setSubmitting`来手动修改提交状态
+
+完成后例子演示
+
+import FormikExample from "./FormikExample/index.js";
+
+<FormikExample/>
+
+`mdx`的牛皮之处又展示出来了，不过像这样引入了许多的依赖，会不会影响页面的加载呢？有空还是得好好研究下`ssr`
+
+## 总结
+
+这里介绍的方法只是`Formik`的一小部分，运用这一小部分已经能完成很多功能了
+
+`yup`是个非常简洁的库，但是研究下来，好像没有能直接把错误信息作为`errors`对象输出的方法，就连`Fomrik`也是`for`循环一个一个取的
+
+除了`Formik`，还有不少方案，如`react-final-form`，这个我也使用过，感觉上实现方法大致可能是相同的，不过它像`redux`一样，分为了`final-form`和`react-final-form`，也就是一个通用的方案，感觉还是很不错，它不像`Formik`一样，必须设置初始值，感觉设置初始值大多数时候都是多余的
+
+另外有一个轻量化的`react-final-form-hooks`，它没有使用`Context API`
+
+`ant design`的方案我还没有研究过，它使用的验证方案是**[async-validator](https://github.com/yiminghe/async-validator)**，我也没研究过😂，有空还需要多研究，记得一年前的我想看`ant design`的源码，发现基本看不懂，最近看了`Button`和`Input`的源码，发现基本能看懂了，仔细回顾这一年的成长还是挺多的
+
+我觉得表单的性能优化也是一部分，不过基本没有考虑过这些，哎，每次使用这些方便好使的库，就感觉开发者很牛皮，我也想成长啊！

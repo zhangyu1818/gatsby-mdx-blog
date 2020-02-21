@@ -1,0 +1,441 @@
+---
+title: swift 5.1 入门学习
+date: "2019-09-13 21:38"
+---
+
+最近学习很迷茫，深入学不懂，源码看不明白，迷茫之下，学一点其他的东西充实自己
+
+因为上周看了`Swift ui`，感觉很不错，和`flutter`简直是一个模子里刻出来的，于是准备在正式版出来之前学习学习
+
+## 变量声明
+
+1. `var` 声明变量
+2. `let` 声明常量
+
+变量类型跟在变量名后
+如 `var str:String = "hello"`
+
+### 可选值
+
+```swift
+var optionalString: String? = "Hello" // String 或者nil
+```
+
+## 字符串
+
+使用`\()`引用变量
+如：
+
+```swift
+let apples = 3
+let oranges = 5
+let appleSummary = "I have \(apples) apples."
+let fruitSummary = "I have \(apples + oranges) pieces of fruit."
+```
+
+### 多行字符串
+
+使用`"""`
+如：
+
+```swift
+let quotation = """
+I said "I have \(apples) apples."
+And then I said "I have \(apples + oranges) pieces of fruit."
+"""
+```
+
+## 数组和字典
+
+### 数组
+
+```swift
+var shoppingList = ["catfish", "water", "tulips"]
+shoppingList[1] = "bottle of water"
+```
+
+### 字典
+
+```swift
+var occupations = [
+    "Malcolm": "Captain",
+    "Kaylee": "Mechanic",
+]
+```
+
+### 创建空数组或字典
+
+```swift
+let emptyArray = [String]()
+let emptyDictionary = [String: Float]()
+```
+
+如果类型不确定
+
+```swift
+shoppingList = []
+occupations = [:]
+```
+
+## 流程控制
+
+### for-in,if
+
+```swift
+let individualScores = [75, 43, 103, 87, 12]
+var teamScore = 0
+for score in individualScores {
+    if score > 50 {
+        teamScore += 3
+    } else {
+        teamScore += 1
+    }
+}
+print(teamScore)
+// Prints "11"
+```
+
+### if-let
+
+```swift
+var optionalName: String? = "John Appleseed"
+var greeting = "Hello!"
+if let name = optionalName {
+    greeting = "Hello, \(name)"
+}
+```
+
+当`optionalName`不为`nil`时，会赋值给`name`并执行代码块中的代码
+
+### 空值判断符??
+
+```swift
+let nickName: String? = nil
+let fullName: String = "John Appleseed"
+let informalGreeting = "Hi \(nickName ?? fullName)"
+```
+
+当`??`左边当值为`nil`时，会返回`??`右边的值
+
+### switch
+
+```swift
+let vegetable = "red pepper"
+switch vegetable {
+case "celery":
+    print("Add some raisins and make ants on a log.")
+case "cucumber", "watercress":
+    print("That would make a good tea sandwich.")
+case let x where x.hasSuffix("pepper"):
+    print("Is it a spicy \(x)?")
+default:
+    print("Everything tastes good in soup.")
+}
+```
+
+`switch`中可以支持任何数据当比较
+
+### for-in 迭代字典
+
+```swift
+let interestingNumbers = [
+    "Prime": [2, 3, 5, 7, 11, 13],
+    "Fibonacci": [1, 1, 2, 3, 5, 8],
+    "Square": [1, 4, 9, 16, 25],
+]
+var largest = 0
+for (kind, numbers) in interestingNumbers {
+    for number in numbers {
+        if number > largest {
+            largest = number
+        }
+    }
+}
+print(largest)
+// Prints "25"
+```
+
+`for`第一个是键名，第二个是值
+
+### while
+
+```swift
+var n = 2
+while n < 100 {
+    n *= 2
+}
+print(n)
+// Prints "128"
+```
+
+### repeat
+
+```swift
+var m = 2
+repeat {
+    m *= 2
+} while m < 100
+print(m)
+// Prints "128"
+```
+
+这就是`do-while`吗?
+
+### for 循环指定范围
+
+#### ..< 不包含最后一项
+
+```swift
+var total = 0
+for i in 0..<4 {
+    total += i
+}
+print(total)
+// Prints "6"
+```
+
+等于 => `for i in [0,1,2,3]`
+
+#### ... 包含最后一项
+
+```swift
+var total = 0
+for i in 0..<4 {
+    total += i
+}
+```
+
+等于 => `for i in [0,1,2,3,4]`
+
+## 函数
+
+```swift
+func greet(person: String, day: String) -> String {
+    return "Hello \(person), today is \(day)."
+}
+greet(person: "Bob", day: "Tuesday")
+```
+
+使用 `func`关键字声明，`->`表示函数返回值当类型
+
+### 使用元组返回多个值
+
+```swift
+func calculateStatistics(scores: [Int]) -> (min: Int, max: Int, sum: Int) {
+    var min = scores[0]
+    var max = scores[0]
+    var sum = 0
+
+    for score in scores {
+        if score > max {
+            max = score
+        } else if score < min {
+            min = score
+        }
+        sum += score
+    }
+
+    return (min, max, sum)
+}
+let statistics = calculateStatistics(scores: [5, 3, 100, 3, 9])
+print(statistics.sum)
+// Prints "120"
+print(statistics.2)
+// Prints "120"
+```
+
+元组当值可以用名字或数字来使用
+
+### 函数嵌套
+
+```swift
+func makeIncrementer() -> ((Int) -> Int) {
+    func addOne(number: Int) -> Int {
+        return 1 + number
+    }
+    return addOne
+}
+var increment = makeIncrementer()
+increment(7)
+```
+
+函数里可以声明新的函数，也可以将这个函数作为返回值返回
+
+### 匿名函数
+
+```swift
+numbers.map({ (number: Int) -> Int in
+    let result = 3 * number
+    return result
+})
+```
+
+使用花括号，`in`关键字来分割参数和函数体
+
+```swift
+let mappedNumbers = numbers.map({ number in 3 * number })
+print(mappedNumbers)
+// Prints "[60, 57, 21, 36]"
+```
+
+一直参数类型和返回类型时，可以省略参数类型和`return`关键字
+
+```swift
+let sortedNumbers = numbers.sorted { $0 > $1 }
+print(sortedNumbers)
+// Prints "[20, 19, 12, 7]"
+```
+
+可以不使用名字，使用编号来引用变量
+
+## 类
+
+```swift
+class EquilateralTriangle: NamedShape {
+    var sideLength: Double = 0.0
+
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 3
+    }
+
+    var perimeter: Double {
+        get {
+            return 3.0 * sideLength
+        }
+        set {
+            sideLength = newValue / 3.0
+        }
+    }
+
+    override func simpleDescription() -> String {
+        return "An equilateral triangle with sides of length \(sideLength)."
+    }
+}
+var triangle = EquilateralTriangle(sideLength: 3.1, name: "a triangle")
+print(triangle.perimeter)
+// Prints "9.3"
+triangle.perimeter = 9.9
+print(triangle.sideLength)
+// Prints "3.3000000000000003"
+```
+
+使用`class`关键字来声明一个类，`init`为构造函数，继承父类使用`:`符号，`self`调用实例类对象的变量，`super`调用父类,`override`关键字重写父类方法
+
+`getter`和`setter`使用关键字`get`和`set`
+
+## 枚举
+
+```swift
+enum Rank: Int {
+    case ace = 1
+    case two, three, four, five, six, seven, eight, nine, ten
+    case jack, queen, king
+
+    func simpleDescription() -> String {
+        switch self {
+        case .ace:
+            return "ace"
+        case .jack:
+            return "jack"
+        case .queen:
+            return "hi queen"
+        case .king:
+            return "king"
+        default:
+            return String(self.rawValue)
+        }
+    }
+}
+let ace = Rank.ace
+let aceRawValue = ace.rawValue
+print(Rank.queen.simpleDescription()) // "hi queen"
+```
+
+枚举可以自定义初始值，如果需要获取枚举的数字值，使用`rawValue`，枚举里也可以写方法
+
+使用构造函数直接通过数字取得值
+
+```swift
+Rank(rawValue: 3) // three
+```
+
+## 结构体
+
+```swift
+struct Card {
+    var rank: Rank
+    var suit: Suit
+    func simpleDescription() -> String {
+        return "The \(rank.simpleDescription()) of \(suit.simpleDescription())"
+    }
+}
+let threeOfSpades = Card(rank: .three, suit: .spades)
+let threeOfSpadesDescription = threeOfSpades.simpleDescription()
+```
+
+使用`stuct`关键字声明结构体，结构体和类相似，不过不能继承,并且类总是以引用传递，结构体以复制传递
+
+## 规则
+
+```swift
+protocol ExampleProtocol {
+    var simpleDescription: String { get }
+    mutating func adjust()
+}
+```
+
+使用`protocol`关键字声明一个规则
+
+```swift
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    func adjust() {
+        simpleDescription += "  Now 100% adjusted."
+    }
+}
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+struct SimpleStructure: ExampleProtocol {
+    var simpleDescription: String = "A simple structure"
+    mutating func adjust() {
+        simpleDescription += " (adjusted)"
+    }
+}
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
+```
+
+类，枚举和结构体，都可以继承这个规则
+
+结构体需要使用`mutating`关键字来标记修改结构体的方法
+
+## 扩展
+
+```swift
+extension Int: ExampleProtocol {
+    var simpleDescription: String {
+        return "The number \(self)"
+    }
+    mutating func adjust() {
+        self += 42
+    }
+}
+print(7.simpleDescription)
+// Prints "The number 7"
+```
+
+使用`extension`关键字来向现有类型添加新方法
+
+## 小结
+
+这里只是文档首页的一篇简述教程，深入学习还需要仔细阅读文档
+
+在枚举、结构体、枚举之前的东西多少能懂七七八八，看见`swift`的这些，颠覆了我以前学`c++`，`c#` 对这些类型对概念，咋个还能这样写，我也不知道算不算反人类，至少`oc`是真的反人类
+
+简单入门，深入学习看文档去了~
