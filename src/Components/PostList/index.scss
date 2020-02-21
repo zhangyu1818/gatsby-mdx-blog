@@ -5,6 +5,7 @@
   grid-template-columns: repeat(4, 1fr);
   width: 100%;
   .post-item {
+    cursor: pointer;
     width: 100%;
     padding-bottom: 100%;
     background-color: var(--home-bg);
@@ -29,10 +30,11 @@
       display: flex;
       flex-direction: column;
       .tag {
-        font-family: "Cinzel";
+        font-family: Cinzel;
+        text-transform: uppercase;
       }
       .date {
-        font-family: "Exo";
+        font-family: Montserrat;
         color: var(--home-secondly-text);
       }
       .name {
@@ -45,7 +47,7 @@
         flex: 1;
         color: var(--home-primary-text);
         font-weight: 400;
-        font-family: Exo, -apple-system, sans-serif;
+        font-family: Montserrat, -apple-system, sans-serif;
       }
     }
   }

@@ -1,6 +1,8 @@
-import React from "react"
+import React from "react";
 
-import "./index.scss"
+import useStore from "../../store";
+
+import "./index.scss";
 
 const PostItem = ({ tag, date, name }) => (
   <div className="post-item">
@@ -10,9 +12,23 @@ const PostItem = ({ tag, date, name }) => (
       <h2 className="name">{name}</h2>
     </div>
   </div>
-)
+);
 
-const PostList = ({ children }) => <div className="post-list">{children}</div>
+const PostList = () => {
+  const { state } = useStore();
+  console.log(state);
+  return (
+    <div className="post-list">
+      {state.filterPosts.allMdx.nodes.map(({ frontmatter, id }) => (
+        <PostItem
+          key={id}
+          name={frontmatter.title}
+          date={frontmatter.date}
+          tag={frontmatter.tags[0]}
+        />
+      ))}
+    </div>
+  );
+};
 
-export default PostList
-export { PostItem }
+export default PostList;

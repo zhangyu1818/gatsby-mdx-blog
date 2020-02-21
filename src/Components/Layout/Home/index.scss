@@ -5,4 +5,8 @@
   padding: 5rem;
   background-color: var(--home-bg);
   overflow: hidden;
+  .home-layout-header {
+    display: grid;
+    grid-template-columns: 80% 20%;
+  }
 }

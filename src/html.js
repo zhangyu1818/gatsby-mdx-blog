@@ -1,6 +1,6 @@
-import React from "react"
-import PropTypes from "prop-types"
-import Fonts from "./utils/fonts"
+import React from "react";
+import PropTypes from "prop-types";
+import Fonts from "./utils/fonts";
 
 export default function HTML(props) {
   return (
@@ -25,7 +25,7 @@ export default function HTML(props) {
         {props.postBodyComponents}
       </body>
     </html>
-  )
+  );
 }
 
 HTML.propTypes = {
@@ -35,4 +35,4 @@ HTML.propTypes = {
   preBodyComponents: PropTypes.array,
   body: PropTypes.string,
   postBodyComponents: PropTypes.array,
-}
+};

@@ -7,9 +7,12 @@
   "dependencies": {
     "@mdx-js/mdx": "^1.5.5",
     "@mdx-js/react": "^1.5.5",
+    "algoliasearch": "^4.0.3",
     "classnames": "^2.2.6",
+    "dotenv": "^8.2.0",
     "gatsby": "^2.19.7",
     "gatsby-image": "^2.2.39",
+    "gatsby-plugin-algolia": "^0.5.0",
     "gatsby-plugin-manifest": "^2.2.39",
     "gatsby-plugin-mdx": "^1.0.73",
     "gatsby-plugin-offline": "^3.0.32",
@@ -23,12 +26,13 @@
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-helmet": "^5.2.1"
+    "react-helmet": "^5.2.1",
+    "react-instantsearch-dom": "^6.3.0"
   },
   "peerDependencies": {
-    "yup": "^0.27.0",
     "formik": "^2.1.4",
-    "react-animate-skeleton": "^1.0.5"
+    "react-animate-skeleton": "^1.0.5",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "prettier": "^1.19.1"

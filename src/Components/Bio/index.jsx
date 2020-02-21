@@ -1,6 +1,6 @@
-import React from "react"
+import React from "react";
 
-import "./index.scss"
+import "./index.scss";
 
 const Bio = () => (
   <div className="bio">
@@ -13,6 +13,6 @@ const Bio = () => (
       <p className="profession">Front-end developer</p>
     </div>
   </div>
-)
+);
 
-export default Bio
+export default Bio;

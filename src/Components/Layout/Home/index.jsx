@@ -1,17 +1,21 @@
-import React from "react"
+import React from "react";
 
-import MainLayout from "../Main"
-import Bio from "../../Bio"
+import MainLayout from "../Main";
+import Bio from "../../Bio";
+import PostFilter from "../../PostFilter";
 
-import "./index.scss"
+import "./index.scss";
 
 const HomeLayout = ({ children }) => (
   <MainLayout>
     <div className="home-layout">
-      <Bio />
-      {children}
+      <header className="home-layout-header">
+        <Bio />
+        <PostFilter />
+      </header>
+      <div className="home-layout-content">{children}</div>
     </div>
   </MainLayout>
-)
+);
 
-export default HomeLayout
+export default HomeLayout;

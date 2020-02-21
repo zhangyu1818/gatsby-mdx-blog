@@ -1,35 +1,20 @@
-import React from "react"
-import { graphql } from "gatsby"
+import React from "react";
+import { graphql } from "gatsby";
 
-import HomeLayout from "../Components/Layout/Home"
-import "./global.scss"
-import PostList, { PostItem } from "../Components/PostList"
+import HomeLayout from "../Components/Layout/Home";
+import PostList from "../Components/PostList";
+import SearchInput from "../Components/Search";
+import { PostsProvider } from "../store";
 
-export const query = graphql`
-  query PostsQuery {
-    allMdx(sort: { fields: frontmatter___date, order: DESC }) {
-      nodes {
-        frontmatter {
-          date
-          description
-          title
-        }
-      }
-    }
-  }
-`
+import "./global.scss";
 
-const IndexPage = ({ data }) => (
-  <HomeLayout>
-    <PostList>
-      {data.allMdx.nodes.map(
-        ({ frontmatter, id, fields, timeToRead, excerpt }) => (
-          <PostItem key={id} name={frontmatter.title} date={frontmatter.date} />
-        )
-      )}
-      }
-    </PostList>
-  </HomeLayout>
-)
+const IndexPage = () => (
+  <PostsProvider>
+    <HomeLayout>
+      {/*<SearchInput />*/}
+      <PostList />
+    </HomeLayout>
+  </PostsProvider>
+);
 
-export default IndexPage
+export default IndexPage;
