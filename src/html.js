@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Fonts from "./utils/fonts";
+import { __htmlScriptDefaultTheme } from "./utils/themeMode";
 
 export default function HTML(props) {
   return (
@@ -16,6 +17,9 @@ export default function HTML(props) {
         {props.headComponents}
       </head>
       <body {...props.bodyAttributes}>
+        <script
+          dangerouslySetInnerHTML={{ __html: __htmlScriptDefaultTheme() }}
+        />
         {props.preBodyComponents}
         <div
           key={`body`}

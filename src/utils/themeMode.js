@@ -41,6 +41,12 @@ const themeModePipe = (...funcs) => {
 const getThemeMode = () =>
   themeModePipe(getThemeModeByStorage, getPrefersThemeMode, getThemeModeByTime);
 
+const __htmlScriptDefaultTheme = () => `
+  let pref = window.matchMedia("(prefers-color-scheme: dark)");
+  if (pref.matches) document.body.className = "dark";
+  else document.body.className = "light";
+`;
+
 export {
   reverseThemeMode,
   getPrefersThemeMode,
@@ -50,4 +56,5 @@ export {
   setThemeMode,
   LIGHT_THEME,
   DARK_THEME,
+  __htmlScriptDefaultTheme,
 };
