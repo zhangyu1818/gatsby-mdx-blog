@@ -9,7 +9,7 @@ import "./global.scss";
 
 const IndexPage = () => (
   <PageLayout header={<HomeHeader />}>
-    <SEO title="Yu's website" />
+    <SEO title="Home" />
     <HomeNav />
   </PageLayout>
 );
