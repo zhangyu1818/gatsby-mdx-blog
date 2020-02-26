@@ -97,7 +97,7 @@ $xl-aside-padding: 24px;
     margin: auto;
     &-scroll {
       display: block;
-      flex-wrap: unset;
+      width: 100% !important;
       .scroll-content {
         flex-direction: column;
       }
