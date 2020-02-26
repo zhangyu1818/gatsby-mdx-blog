@@ -1,0 +1,48 @@
+@import "../../scss/variables";
+
+.blog-header {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 20% 50% 30%;
+  align-items: center;
+  justify-items: start;
+  &.logo-switch .switcher-translate {
+    transform: translateY(-64px);
+  }
+  .header-logo-switcher {
+    overflow: hidden;
+    height: 90px;
+    width: 90px;
+    position: relative;
+    padding-top: 13px;
+    @media screen and (max-width: $lg) {
+      height: 64px;
+      padding-top: 0;
+    }
+    .switcher-translate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 400ms ease-out;
+      .header-logo {
+        margin: 0;
+        width: 80px;
+        line-height: 64px;
+        text-align: center;
+      }
+      .header-logo-icon {
+        width: 64px;
+        height: 64px;
+      }
+    }
+  }
+  &-nav {
+    .nav-item {
+      height: 64px;
+      line-height: 64px;
+    }
+  }
+  @media screen and (max-width: $md) {
+    display: none;
+  }
+}

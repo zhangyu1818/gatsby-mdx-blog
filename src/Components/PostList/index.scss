@@ -1,53 +1,69 @@
+@import "../../scss/variables";
+
 .post-list {
-  margin-top: 5rem;
+  height: 100%;
   display: grid;
-  grid-gap: 1px;
-  grid-template-columns: repeat(4, 1fr);
-  width: 100%;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, 33.3%);
+  grid-column-gap: 80px;
+  font-family: Montserrat;
+  .time {
+    width: 320px;
+    font-size: 96px;
+    grid-row-start: span 3;
+  }
   .post-item {
-    cursor: pointer;
-    width: 100%;
-    padding-bottom: 100%;
-    background-color: var(--home-bg);
-    box-shadow: 0 0 0 2px var(--home-thirdly-text);
-    transition: 200ms ease-out;
+    min-width: 640px;
+    transition: transform $hover-animation-duration ease-out;
     position: relative;
-    border-radius: 1px;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    color: var(--primary-text);
     &:hover {
-      z-index: 2;
       transform: scale(1.08);
     }
     &:active {
       transform: scale(1.05);
     }
-    .post-item-content {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 1.25rem;
+    .tag {
+      font-size: 0.8em;
+      text-transform: uppercase;
+    }
+    .date {
+    }
+    .name {
+      margin: 0;
+      font-size: 1.75em;
+      line-height: 1.75;
+      word-break: break-word;
+      flex: 1;
       display: flex;
-      flex-direction: column;
-      .tag {
-        font-family: Cinzel;
-        text-transform: uppercase;
-      }
-      .date {
-        font-family: Montserrat;
-        color: var(--home-secondly-text);
+      align-items: center;
+      font-weight: 400;
+    }
+  }
+  @media screen and(max-width: $lg) {
+    grid-column-gap: 40px;
+    .post-item {
+      min-width: 480px;
+    }
+  }
+  @media screen and (max-width: $md) {
+    display: block;
+    .time {
+      font-size: 64px;
+      padding: 0.5em 0;
+    }
+    .post-item {
+      width: inherit;
+      min-width: unset;
+      &:hover,
+      &:active {
+        transform: none;
       }
       .name {
-        margin: 0;
-        padding-top: 1.7rem;
-        font-size: 1.75rem;
-        line-height: 1.75;
-        text-align: center;
-        word-break: break-word;
-        flex: 1;
-        color: var(--home-primary-text);
-        font-weight: 400;
-        font-family: Montserrat, -apple-system, sans-serif;
+        font-size: 24px;
       }
     }
   }

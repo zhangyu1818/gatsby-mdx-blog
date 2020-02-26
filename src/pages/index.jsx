@@ -1,20 +1,17 @@
 import React from "react";
-import { graphql } from "gatsby";
 
-import HomeLayout from "../Components/Layout/Home";
-import PostList from "../Components/PostList";
-import SearchInput from "../Components/Search";
-import { PostsProvider } from "../store";
+import PageLayout from "../Layout/Page";
+import HomeHeader from "../Components/HomeHeader";
+import HomeNav from "../Components/HomeNav";
+import SEO from "../Components/seo";
 
 import "./global.scss";
 
 const IndexPage = () => (
-  <PostsProvider>
-    <HomeLayout>
-      {/*<SearchInput />*/}
-      <PostList />
-    </HomeLayout>
-  </PostsProvider>
+  <PageLayout header={<HomeHeader />}>
+    <SEO title="Yu's website" />
+    <HomeNav />
+  </PageLayout>
 );
 
 export default IndexPage;

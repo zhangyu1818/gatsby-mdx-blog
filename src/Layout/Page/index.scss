@@ -1,0 +1,55 @@
+@import "../../scss/variables";
+
+$xl-padding-horizontal: 60px;
+$xl-padding-top: 64px;
+$xl-padding-bottom: 48px;
+$lg-padding-horizontal: 20px;
+$lg-padding-top: 64px;
+
+.page-layout {
+  height: inherit;
+  position: relative;
+  padding: 90px 110px 72px;
+  background-color: var(--primary-bg);
+  transition: background-color $bg-animation-duration ease-out;
+  @media screen and (max-width: $lg) {
+    padding: $xl-padding-top $xl-padding-horizontal $xl-padding-bottom;
+  }
+  @media screen and (max-width: $md) {
+    padding: $lg-padding-top $lg-padding-horizontal $xl-padding-bottom;
+  }
+  &-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    padding-left: inherit;
+    padding-right: inherit;
+    @media screen and (max-width: $lg) {
+      height: 64px;
+    }
+  }
+  &-content {
+    height: 100%;
+  }
+  &-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    padding-top: inherit;
+    padding-bottom: inherit;
+    width: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    @media screen and (max-width: $lg) {
+      width: $xl-padding-horizontal;
+    }
+    @media screen and (max-width: $md) {
+      display: none;
+    }
+  }
+}

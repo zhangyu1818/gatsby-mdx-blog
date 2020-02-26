@@ -1,0 +1,46 @@
+@import "../../scss/variables";
+
+.main-layout {
+  &.post {
+    position: static;
+    padding-bottom: 80px;
+    .main-layout-content {
+      height: auto;
+    }
+  }
+  background-color: var(--bg);
+  transition: background-color $bg-animation-duration ease-out;
+  padding: calc(50vh - 456px) 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  .main-layout-content {
+    height: 100%;
+    max-width: 1640px;
+    margin: auto;
+    background-color: var(--primary-bg);
+  }
+  @media screen and (max-width: 1640px) {
+    &.post {
+      padding-left: 80px;
+      padding-right: 80px;
+    }
+  }
+  @media screen and (max-height: 912px) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  @media screen and (max-width: $md) {
+    position: static;
+    padding: 0;
+    &.post {
+      padding: 0;
+    }
+    .main-layout-content {
+      height: auto;
+    }
+  }
+}

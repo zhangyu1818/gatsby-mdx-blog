@@ -1,0 +1,71 @@
+@import "../../scss/variables";
+
+.home-nav {
+  width: calc(100% - 48px);
+  height: 100%;
+  display: grid;
+  grid-template-columns: 60% 40%;
+  grid-template-rows: 55% 45%;
+  grid-column-gap: 48px;
+  &-intro {
+    grid-column-start: span 2;
+    font-size: 64px;
+    padding-top: 8vh;
+    padding-left: 10vw;
+  }
+  &-projects {
+    background-color: var(--secondary-bg);
+    color: #eceff4;
+  }
+  &-blog,
+  &-projects {
+    cursor: pointer;
+    padding: 48px 32px;
+    h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 48px;
+      font-weight: bold;
+    }
+    p {
+      font-size: 24px;
+    }
+  }
+  @media screen and (max-width: $md) {
+    width: 100%;
+    min-height: calc(100vh - 112px);
+    grid-template-columns: 100%;
+    grid-template-rows: repeat(3, 33%);
+    grid-column-gap: 0;
+    &-intro {
+      grid-column-start: unset;
+    }
+    &-intro,
+    &-projects,
+    &-blog {
+      height: 100%;
+    }
+  }
+  @media screen and (max-width: $lg) {
+    &-intro {
+      font-size: 32px;
+    }
+    &-blog,
+    &-projects {
+      padding: 24px 16px;
+    }
+  }
+  @media screen and (max-width: $sm) {
+    &-blog,
+    &-projects {
+      h2 {
+        font-size: 8vw;
+      }
+      p {
+        font-size: 5vw;
+      }
+    }
+  }
+}

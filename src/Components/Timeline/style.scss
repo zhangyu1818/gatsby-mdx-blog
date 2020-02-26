@@ -1,0 +1,33 @@
+@import "../../scss/variables";
+
+.time-line {
+  position: absolute;
+  right: 110px;
+  top: 50%;
+  transform: translateY(-50%);
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  @media screen and (max-width: $md) {
+    display: none;
+  }
+  &-item {
+    position: relative;
+    outline: none;
+    & + & {
+      margin-left: 80px;
+      &::before {
+        content: "";
+        position: absolute;
+        left: -100%;
+        top: 50%;
+        width: 40px;
+        height: 1px;
+        transform: translate(-50%, -50%);
+        background: currentColor;
+      }
+    }
+  }
+}

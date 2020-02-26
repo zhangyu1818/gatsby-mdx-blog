@@ -1,16 +1,16 @@
 import React from "react";
 
+import avatar from "../../images/avatar.jpeg";
+
 import "./index.scss";
 
 const Bio = () => (
   <div className="bio">
-    <div className="avatar"></div>
-    <div className="info">
-      <h1 className="name">
-        <span>Yu's</span>
-        <span>Blog</span>
-      </h1>
-      <p className="profession">Front-end developer</p>
+    <div className="bio-avatar">
+      <img src={avatar} alt="avatar" />
+      <p>
+        oh oh sometimes ~<br />i get a good feeling ~
+      </p>
     </div>
   </div>
 );

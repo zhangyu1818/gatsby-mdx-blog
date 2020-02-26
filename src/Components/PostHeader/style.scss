@@ -1,0 +1,16 @@
+@import "../../scss/variables";
+.post-header {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .nav-item {
+    height: 64px;
+    line-height: 64px;
+  }
+  @media screen and (max-width: $md) {
+    .post-header-nav {
+      display: none;
+    }
+  }
+}

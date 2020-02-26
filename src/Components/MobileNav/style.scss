@@ -1,0 +1,53 @@
+@import "../../scss/variables";
+
+.mobile-nav {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  top: 14px;
+  right: 58px;
+  display: none;
+  .mobile-nav-container {
+    background: var(--bg);
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    .mobile-nav-list {
+      padding-top: 15vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .mobile-nav-item {
+        margin-top: 0.5em;
+        font-size: 2em;
+      }
+    }
+  }
+  .menu-toggle {
+    position: absolute;
+    z-index: 3;
+    outline: none;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: inherit;
+    height: inherit;
+    transition: background-color 300ms ease-out;
+    border-radius: 4px;
+    padding: 5px 0 0 2.25px;
+    &:hover {
+      background-color: var(--primary-text-contrast);
+    }
+    path {
+      stroke: var(--primary-text);
+    }
+  }
+  @media screen and (max-width: $md) {
+    display: block;
+  }
+}

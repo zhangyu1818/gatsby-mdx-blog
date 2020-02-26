@@ -1,43 +1,25 @@
-@import "../../scss/utils";
+@import "../../scss/variables";
+
+$xl-img-size: 100px;
+$lg-img-size: 80px;
 
 .bio {
-  display: flex;
-  .avatar {
-    width: 20rem;
-    height: 20rem;
-    margin-right: 5rem;
-    background: var(--global-bg);
-  }
-  .info {
-    height: 20rem;
+  &-avatar {
     display: flex;
-    flex-direction: column;
-    .name {
-      flex: 1;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      font-size: 7rem;
-      font-family: "Comfortaa";
-      letter-spacing: 0.5rem;
-      span {
-        line-height: 7rem;
-        color: var(--home-primary-text);
-        text-shadow: 0 -0.3rem 0 #bca754, 0.3rem 0 0 #d47048, 0 0.3rem 0 #5898d2;
-        &:last-child {
-          margin-top: 1.25rem;
-          margin-left: 2ex;
-        }
+    align-items: center;
+    img {
+      width: 128px;
+      height: 128px;
+      margin-right: 2rem;
+      border-radius: 50%;
+      @media screen and (max-width: $lg) {
+        width: $xl-img-size;
+        height: $xl-img-size;
       }
-    }
-    .profession {
-      margin: 0;
-      font-size: 1.5rem;
-      line-height: 1.5rem;
-      font-family: "Cinzel";
-      font-weight: 500;
-      color: var(--home-secondly-text);
+      @media screen and (max-width: $md) {
+        width: $lg-img-size;
+        height: $lg-img-size;
+      }
     }
   }
 }

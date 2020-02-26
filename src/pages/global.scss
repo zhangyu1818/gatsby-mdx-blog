@@ -1,4 +1,13 @@
 @import "../scss/variables";
+@import "../scss/markdown";
+@import "~normalize.css";
+
+@font-face {
+  font-family: "zcoolwenyi";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/zcoolwenyi.ttf") format("truetype");
+}
 
 *,
 ::before,
@@ -7,19 +16,81 @@
 }
 
 :root {
-  font: 100%/1.75 Alegreya Sans, -apple-system, BlinkMacSystemFont, Segoe UI,
+  font: 100%/1.75 Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI,
     Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
     sans-serif;
   overflow-y: scroll;
   overflow-x: hidden;
-  @include globalVar();
   body {
     position: absolute;
     width: 100vw;
     overflow: hidden;
-    background-color: var(--global-bg);
+    -moz-font-feature-settings: "kern";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    @include var();
     &.light {
       @include lightVar();
     }
+    &.dark {
+      @include darkVar();
+      img {
+        filter: grayscale(30%);
+      }
+    }
+    :any-link {
+      text-decoration: none;
+      color: inherit;
+      &.hover-link {
+        color: var(--secondray-text);
+        transition: color 200ms ease-in-out;
+        &:hover {
+          color: var(--primary-text);
+        }
+      }
+    }
+    color: var(--primary-text);
+  }
+}
+
+.tl-edges {
+  height: inherit;
+  .tl-wrapper {
+    height: inherit;
+  }
+}
+
+/*
+  通用的类
+ */
+.cp {
+  cursor: pointer;
+}
+.df {
+  display: flex;
+}
+.animate-nav-item {
+  position: relative;
+  margin-right: 1em;
+  padding-right: 2em;
+  display: inline-block;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 80%;
+    left: 100%;
+    width: 0;
+    border-bottom: 2px solid var(--common-color-1);
+    transition: 0.3s all ease-out;
+    transition-delay: 0.1s;
+  }
+  &:hover::before {
+    width: 100%;
+    left: 0;
+  }
+  &:hover ~ .animate-nav-item::before {
+    left: 0;
   }
 }

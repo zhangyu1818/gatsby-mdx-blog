@@ -1,0 +1,124 @@
+@import "../../scss/variables";
+
+$xl-aside-padding: 24px;
+
+.blog-layout {
+  height: 100%;
+  overflow: hidden;
+  &-scroll {
+    height: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    .scroll-content {
+      display: flex;
+    }
+  }
+  &-aside {
+    flex: none;
+    padding: 32px;
+    display: flex;
+    @media screen and (max-width: $lg) {
+      padding: $xl-aside-padding;
+    }
+    .aside-hello {
+      font-size: 10vw;
+      flex: 1;
+      font-family: "Monoton";
+      text-align: center;
+      @media screen and (min-width: 1640px) {
+        font-size: 192px;
+      }
+    }
+    .aside-divider {
+      flex: none;
+      width: 15%;
+      position: relative;
+      color: var(--divider);
+      &::before,
+      &::after {
+        position: absolute;
+        left: 50%;
+      }
+      &::before {
+        content: "分割线";
+        position: absolute;
+        top: 20%;
+        transform: translateX(-50%);
+        writing-mode: vertical-lr;
+      }
+      &::after {
+        content: "";
+        bottom: 20%;
+        height: 20%;
+        width: 2px;
+        background: currentColor;
+      }
+    }
+    .aside-intro {
+      position: relative;
+      flex: none;
+      margin-top: 80px;
+      .intro-name {
+        margin: 0 0 48px;
+        font-size: 40px;
+        font-weight: 700;
+      }
+      .scroll-tips {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 18px;
+        padding: 0.2em 1em;
+        border: 1px solid;
+        margin: 0;
+      }
+    }
+    .aside-social-link {
+      display: none;
+      padding-left: 112px;
+      line-height: 40px;
+    }
+  }
+  &-content {
+    flex: none;
+    padding-left: 128px;
+    padding-top: 64px;
+    width: 100%;
+    @media screen and (max-width: $lg) {
+      padding-top: 32px;
+    }
+    @media screen and(max-width: $md) {
+      padding-left: 0;
+    }
+  }
+  @media screen and (max-width: $md) {
+    max-width: 640px;
+    margin: auto;
+    &-scroll {
+      display: block;
+      flex-wrap: unset;
+      .scroll-content {
+        flex-direction: column;
+      }
+    }
+    &-aside {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      .aside-hello,
+      .aside-divider,
+      .scroll-tips {
+        display: none;
+      }
+      .aside-intro {
+        margin: 0;
+        .intro-name {
+          margin-bottom: 24px;
+        }
+      }
+      .aside-social-link {
+        display: block;
+      }
+    }
+  }
+}

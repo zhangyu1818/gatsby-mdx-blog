@@ -1,10 +1,38 @@
-@mixin globalVar() {
-  --global-bg: #83b6cb;
+@mixin lightVar() {
+  --bg: #eceff4;
+  --primary-bg: #fff;
+  --secondary-bg: #5e81ac;
+  --tertiary-bg: #e5e9f0;
+  --primary-text: #4c566a;
+  --secondray-text: #7b88a1;
+  --divider: rgba(60, 60, 67, 0.29);
+  --markdown-headline: #bf616a;
+  --border-color: rgba(94, 129, 172, 0.6);
+  --primary-text-contrast: rgba(229, 233, 240, 0.75);
+  --shadow-color: rgba(184, 194, 215, 0.35);
 }
 
-@mixin lightVar() {
-  --home-bg: #252728;
-  --home-primary-text: #e6e9eb;
-  --home-secondly-text: #7b8790;
-  --home-thirdly-text: #626a6e;
+@mixin darkVar() {
+  --bg: #242933;
+  --primary-bg: #2e3440;
+  --secondary-bg: #3b4252;
+  --tertiary-bg: #4c566a80;
+  --primary-text: #eceff4;
+  --secondray-text: #abb9cf;
+  --divider: rgba(84, 84, 88, 0.65);
+  --markdown-headline: #81a1c1;
+  --border-color: rgba(136, 192, 208, 0.6);
+  --primary-text-contrast: #4c566a;
+  --shadow-color: rgba(15, 17, 21, 0.2);
 }
+
+@mixin var() {
+  --common-color-1: #bf616a;
+}
+
+$bg-animation-duration: 400ms;
+$hover-animation-duration: 300ms;
+
+$lg: 1366px;
+$md: 992px;
+$sm: 768px;
