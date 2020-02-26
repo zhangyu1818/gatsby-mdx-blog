@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { fromEvent } from "rxjs";
 import { debounceTime, filter, map, mergeMap, retryWhen } from "rxjs/operators";
 
@@ -9,9 +9,9 @@ import Bio from "../../Components/Bio";
 import RefElePropertyHandle from "../../utils/refEleProperty";
 import clamp from "../../utils/clamp";
 import Timeline from "../../Components/Timeline";
+import GithubSvg from "../../Components/SvgLink";
 
 import "./style.scss";
-import GithubSvg from "../../Components/SvgLink";
 
 const INNER_WIDTH_RANGE = 992;
 const INNER_WIDTH_OUT_OF_RANGE = "INNER_WIDTH_OUT_OF_RANGE";
@@ -19,6 +19,8 @@ const INNER_WIDTH_OUT_OF_RANGE = "INNER_WIDTH_OUT_OF_RANGE";
 const isRefExist = (...refs) => refs.some(ref => !ref.current);
 
 const BlogLayout = ({ children }) => {
+  const [tipsContent, setTipsContent] = useState("加载中");
+
   const headerRef = useRef(null);
   const timelineRef = useRef(null);
   const layoutRef = useRef(null);
@@ -32,6 +34,9 @@ const BlogLayout = ({ children }) => {
       console.error("没有获取到Ref元素");
       return;
     }
+
+    setTipsContent("保持滚动");
+
     const layoutRefHandle = RefElePropertyHandle.create(layoutRef);
     const mainRefHandle = RefElePropertyHandle.create(mainRef);
     const scrollRefHandle = RefElePropertyHandle.create(scrollRef);
@@ -146,7 +151,7 @@ const BlogLayout = ({ children }) => {
               <div className="aside-intro">
                 <h2 className="intro-name">Blog</h2>
                 <Bio />
-                <p className="scroll-tips">保持滚动</p>
+                <p className="scroll-tips">{tipsContent}</p>
               </div>
               <div className="aside-social-link">
                 <GithubSvg />

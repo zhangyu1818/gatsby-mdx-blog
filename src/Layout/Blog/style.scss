@@ -17,6 +17,7 @@ $xl-aside-padding: 24px;
     flex: none;
     padding: 32px;
     display: flex;
+    width: 1420px;
     @media screen and (max-width: $lg) {
       padding: $xl-aside-padding;
     }
