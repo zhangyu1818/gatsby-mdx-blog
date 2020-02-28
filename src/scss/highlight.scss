@@ -156,4 +156,105 @@
       border-radius: 0;
     }
   }
+  .gatsby-highlight {
+    position: relative;
+    &::before {
+      background: #ddd;
+      border-radius: 0 0 4px 4px;
+      color: #000000;
+      font-size: 0.75rem;
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+        Courier New, monospace;
+      letter-spacing: 0.075em;
+      line-height: 1;
+      padding: 0.25em 0.5em;
+      position: absolute;
+      right: 5em;
+      text-align: right;
+      text-transform: uppercase;
+      top: 0;
+    }
+    &[data-language="javascript"]::before {
+      content: "js";
+      background: #f7df1e;
+    }
+
+    &[data-language="typescript"]::before {
+      content: "ts";
+      background: #294e80;
+      color: #ffffff;
+    }
+
+    &[data-language="jsx"]::before {
+      content: "jsx";
+      background: #61dafb;
+    }
+
+    &[data-language="tsx"]::before {
+      content: "tsx";
+      background: #294e80;
+      color: #ffffff;
+    }
+
+    &[data-language="json"]::before {
+      content: "json";
+      background: #addb67;
+    }
+
+    &[data-language="css"]::before {
+      content: "css";
+      background: #ff9800;
+      color: #ffffff;
+    }
+
+    &[data-language="sass"]::before {
+      content: "sass";
+      background: #cc6699;
+      color: #ffffff;
+    }
+
+    &[data-language="less"]::before {
+      content: "less";
+      background: #1d365d;
+      color: #ffffff;
+    }
+
+    &[data-language="text"]::before {
+      content: "text";
+    }
+
+    &[data-language="shell"]::before,
+    &[data-language="shellscript"]::before {
+      content: "shell";
+    }
+
+    &[data-language="html"]::before {
+      content: "html";
+      color: #ffffff;
+      background: #005a9c;
+    }
+
+    &[data-language="dart"]::before {
+      content: "dart";
+      color: #ffffff;
+      background: #294058;
+    }
+
+    &[data-language="swift"]::before {
+      content: "swift";
+      color: #ffffff;
+      background: #f15138;
+    }
+
+    &[data-language="scss"]::before {
+      content: "scss";
+      color: #ffffff;
+      background: #cc6699;
+    }
+    &[data-language="vue"]::before {
+      content: "vue";
+      color: #000;
+      background: #4fc08d;
+    }
+  }
 }

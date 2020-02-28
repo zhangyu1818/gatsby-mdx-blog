@@ -36,7 +36,7 @@ const PostLayout = ({ data: { mdx }, pageContext }) => {
         <article className="post-layout-content markdown-body">
           <MDXRenderer>{mdx.body}</MDXRenderer>
         </article>
-        <footer className="page-layout-footer">
+        <footer className="post-layout-footer">
           {previous ? (
             <FooterNavigator prefix="←" to={previous.node.fields.slug}>
               {previous.node.frontmatter.title}

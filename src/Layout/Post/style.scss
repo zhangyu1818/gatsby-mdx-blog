@@ -21,11 +21,16 @@
       }
     }
   }
-  .page-layout-footer {
+  &-footer {
     max-width: 50rem;
     margin: auto;
-    display: flex;
-    justify-content: space-between;
+    overflow: hidden;
+    :first-child {
+      float: left;
+    }
+    :last-child {
+      float: right;
+    }
     .arrow {
       height: 48px;
       line-height: 48px;
