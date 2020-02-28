@@ -17,7 +17,7 @@ const BlogHeader = forwardRef((_, ref) => (
       <TransitionTo className="animate-nav-item nav-item cp" top="entry" to="/">
         Home
       </TransitionTo>
-      <span className="animate-nav-item nav-item cp">Projects</span>
+      {/*<span className="animate-nav-item nav-item cp">Projects</span>*/}
     </nav>
     <div className="blog-header-search" hidden>
       search

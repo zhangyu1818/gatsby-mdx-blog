@@ -28,7 +28,7 @@ const sidebar = {
 const defaultConfig = [
   { name: "Home", to: "/", direction: "right", top: "entry" },
   { name: "Blog", to: "/blog", direction: "left" },
-  { name: "Projects", to: "/projects", direction: "left" },
+  // { name: "Projects", to: "/projects", direction: "left" },
 ];
 
 const MobileNav = ({ config = defaultConfig }) => {
