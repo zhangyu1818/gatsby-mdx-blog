@@ -12,6 +12,9 @@
     font-size: 64px;
     padding-top: 8vh;
     padding-left: 10vw;
+    img {
+      width: 10vw;
+    }
   }
   &-projects {
     background-color: var(--secondary-bg);

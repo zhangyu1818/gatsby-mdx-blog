@@ -11,8 +11,10 @@ const Arrow = ({ color = "currentColor" }) => (
 
 const HomeNav = () => (
   <div className="home-nav">
-    <div className="home-nav-intro">没想好写啥</div>
-    <div className="home-nav-projects">
+    <div className="home-nav-intro">
+      <img alt="👋" src="https://twemoji.maxcdn.com/2/svg/1f44b.svg" />
+    </div>
+    <div hidden className="home-nav-projects">
       <h2>
         Projects（没做）
         <Arrow />
