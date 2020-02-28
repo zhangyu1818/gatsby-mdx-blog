@@ -8,8 +8,10 @@ const PostHeader = () => (
       <h1 className="cp">Blog</h1>
     </TransitionTo>
     <nav className="post-header-nav">
-      <span className="animate-nav-item nav-item cp">Home</span>
-      <span className="animate-nav-item nav-item cp">Projects</span>
+      <TransitionTo to="/" className="animate-nav-item nav-item cp">
+        Home
+      </TransitionTo>
+      {/*<span className="animate-nav-item nav-item cp">Projects</span>*/}
     </nav>
   </header>
 );
