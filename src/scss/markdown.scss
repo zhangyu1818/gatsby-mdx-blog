@@ -118,7 +118,7 @@ made some minor changes
       margin-bottom: 0;
     }
     li {
-      line-height: 1.2;
+      line-height: inherit;
       margin: 1em 0 1em 1em;
     }
   }
@@ -197,5 +197,9 @@ made some minor changes
     color: var(--tertiary-bg);
     padding: 0;
     font-size: 0.9em;
+  }
+  :any-link{
+    padding: 0.2em;
+    color: var(--markdown-headline) !important;
   }
 }
