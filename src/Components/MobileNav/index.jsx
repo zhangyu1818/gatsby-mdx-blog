@@ -1,13 +1,14 @@
 import React from "react";
 import { motion, useCycle } from "framer-motion";
 import MenuToggle from "./MenuToggle";
+import Navigation from "./navigation";
 
 import "./style.scss";
-import Navigation from "./navigation";
 
 const sidebar = {
   open: (height = 1000) => ({
     clipPath: `circle(${height * 2 + 200}px at calc(100vw - 74px) 30px)`,
+    pointerEvents: "unset",
     transition: {
       type: "spring",
       stiffness: 20,
@@ -16,6 +17,7 @@ const sidebar = {
   }),
   closed: {
     clipPath: "circle(1px at calc(100vw - 74px) 30px)",
+    pointerEvents: "none",
     transition: {
       delay: 0.5,
       type: "spring",
