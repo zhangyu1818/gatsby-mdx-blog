@@ -1,0 +1,216 @@
+---
+title: Less学习笔记（二）函数
+date: 2020-03-22 19:28
+tags:
+    - CSS
+---
+
+## 逻辑函数
+
+### if
+
+`if`接收3个参数，第一个参数为表达式，第二个参数为表达式结果为`true`时的返回值，第三个参数为表达式结果为`false`的返回值
+
+```less
+@some: foo;
+
+div {
+    margin: if((2 > 1), 0, 3px);
+    color:  if((iscolor(@some)), darken(@some, 10%), black);
+}
+```
+
+输出
+
+```less
+div {
+    margin: 0;
+    color:  black;
+}
+```
+
+### boolean
+
+`boolean`可以用来存储某个表达式的结果，给`if`使用
+
+```less
+@bg: black;
+@bg-light: boolean(luma(@bg) > 50%);
+
+div {
+  background: @bg;
+  color: if(@bg-light, black, white);
+}
+```
+
+## String函数
+
+### escape
+
+`escape`函数用来encoding字符串
+
+```less
+escape('a=1')
+// 输出
+a%3D1
+```
+
+### e
+
+`e`返回原来的字符串，但是不带引号
+
+```less
+@mscode: "ms:alwaysHasItsOwnSyntax.For.Stuff()"
+filter: e(@mscode);
+// 输出
+filter: ms:alwaysHasItsOwnSyntax.For.Stuff();
+```
+
+### replace
+
+`replace`函数可以替换字符串
+
+```less
+replace("Hello, Mars?", "Mars\?", "Earth!");
+// "Hello, Earth!";
+```
+
+## List函数
+
+### length
+
+返回`list`中的元素个数
+
+```less
+length(1px solid #0080ff);
+// 3
+```
+
+### extract
+
+返回`list`中指定位置的元素
+
+```less
+extract(8px dotted red, 2);
+// dotted
+```
+
+### range
+
+根据参数，返回一个`list`
+
+- 参数1 开始位置 e.g. `1`或者`1px` （可选参数）
+- 参数2 结束位置 e.g. `5px`
+- 参数3 跨度 （可选参数）
+
+```less
+value: range(4);
+// 输出
+value: 1 2 3 4;
+
+value: range(10px, 30px, 10);
+// 输出
+value: 10px 20px 30px;
+```
+
+### each
+
+循环一个`list`
+
+```less
+@selectors: blue, green, red;
+
+each(@selectors, {
+  .sel-@{value} {
+    a: b;
+  }
+});
+
+// 输出
+
+.sel-blue {
+  a: b;
+}
+.sel-green {
+  a: b;
+}
+.sel-red {
+  a: b;
+}
+```
+
+默认可以使用的变量是`@value`、`@key`、`@index`
+
+### 例子
+
+使用`range`和`each`来创建循环
+
+```less
+each(range(4), {
+  .col-@{value} {
+    height: (@value * 50px);
+  }
+});
+
+// 输出
+
+.col-1 {
+  height: 50px;
+}
+.col-2 {
+  height: 100px;
+}
+.col-3 {
+  height: 150px;
+}
+.col-4 {
+  height: 200px;
+}
+```
+
+## Math函数
+
+`Math`函数感觉很多了，基本的是四舍五入、开方、去最大最小值，相信使用三角函数的都是比较高阶的用法了
+
+具体见[文档](http://lesscss.org/functions/#math-functions)
+
+## Type函数
+
+`Type`函数用来判断是否是某种类型
+
+```less
+isnumber(#ff0);     // false
+isnumber(blue);     // false
+isnumber("string"); // false
+isnumber(1234);     // true
+isnumber(56px);     // true
+isnumber(7.8%);     // true
+isnumber(keyword);  // false
+isnumber(url(...)); // false
+
+isstring(#ff0);     // false
+isstring(blue);     // false
+isstring("string"); // true
+isstring(1234);     // false
+isstring(56px);     // false
+isstring(7.8%);     // false
+isstring(keyword);  // false
+isstring(url(...)); // false
+
+iscolor(#ff0);     // true
+iscolor(blue);     // true
+iscolor("string"); // false
+iscolor(1234);     // false
+iscolor(56px);     // false
+iscolor(7.8%);     // false
+iscolor(keyword);  // false
+iscolor(url(...)); // false
+```
+
+更多还是见[文档](http://lesscss.org/functions/#type-functions)
+
+还有很多颜色转换、颜色混合的，还是文档写的清楚
+
+虽然感觉这一篇很水，本来在官网上“函数”是单独的一个页面，想着好好写一篇，没想到工具函数太多了，想想基础使用应该都用不上，如果光是复制个例子根本没有意义
+
+像后面的颜色混合，如果有设计师专门标明了混合方法感觉还能用用，但是在实现做项目感觉很少能用的上，就这样子吧
