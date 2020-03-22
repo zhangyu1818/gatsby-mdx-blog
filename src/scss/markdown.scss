@@ -198,8 +198,18 @@ made some minor changes
     padding: 0;
     font-size: 0.9em;
   }
-  :any-link{
+  :any-link {
     padding: 0.2em;
     color: var(--markdown-headline) !important;
+  }
+
+  .mermaid {
+    .edgePath {
+      fill: #fff;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+    }
   }
 }

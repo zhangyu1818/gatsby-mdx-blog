@@ -52,6 +52,15 @@ module.exports = {
             },
           },
           {
+            resolve: "gatsby-remark-mermaid",
+            options: {
+              mermaidOptions: {
+                themeCSS:
+                  ".edgePath .path.path { stroke: var(--primary-text); } .edgePath marker { stroke: var(--primary-text) }",
+              },
+            },
+          },
+          {
             resolve: `gatsby-remark-prismjs`,
           },
         ],
