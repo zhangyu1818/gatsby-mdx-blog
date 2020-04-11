@@ -1,0 +1,265 @@
+---
+title: 总结自己使用过的Hooks数据流方式
+date: 2020-04-11 12:23
+tags:
+    - React
+---
+
+`Hooks`正式推出也有一年出头了，总结这一年中，自己使用过的`Hooks`数据流方式
+
+目前接触过的数据流方案大致是2种方式
+
+- 基于`React`的数据流
+- 不基于`React`的数据流
+
+## 基于React的数据流实现
+
+简单讲来，就是使用官方提供的`Hooks`，比如最常见的`useState`，这种方式也是我们用的最多的
+
+### useState
+
+通过`useState`能将曾经类组件的`state`值拆分为多个
+
+```jsx
+function App() {
+  const [state, setState] = useState({ foo: 0 });
+  const [loading, setLoading] = useState(false);
+  // ...
+}
+```
+
+使用`useState`最大的好处是简洁明了，个人觉得有2个缺点
+
+1. 缺点在于拆分过多，使用太多的`useState`后不好管理
+2. 如果某一个`state`值过于复杂，在改变值时的合并是比较难处理的
+
+针对这两个小问题，也有另一个`hooks`解决
+
+### useReducer
+
+`useReducer`可以说是官方简版`redux`
+
+```jsx
+const reducer = (state, { type, loading }) => {
+  if (type === "FOO") return { ...state, foo: 1 };
+  if (type === "SET_LOADING") return { ...state, loading };
+  return state;
+};
+function App() {
+  const [state, dispatch] = useReducer(reducer, { foo: 0, loading: false });
+  // ...
+}
+```
+
+与`redux`还有一些小差异的就是`react`提倡将初始值赋值在`useReudcer`的参数中，而不是`reducer`的`state`
+
+上面2种方式在单组件或者是父子层级组件使用还是比较方便，如果想像`redux`一样不关乎层级共享数据呢？在`Hooks`中也提供了对应的方法
+
+### useContext + useReducer
+
+这种方式是我在这一年中使用最多的跨组件共享状态的方式了
+
+```jsx
+const Context = createContext({});
+const reducer = (state, { type, loading }) => {
+  if (type === "FOO") return { ...state, foo: 1 };
+  if (type === "SET_LOADING") return { ...state, loading };
+  return state;
+};
+function App() {
+  const [state, dispatch] = useReducer(reducer, { foo: 0, loading: false });
+  return (
+    <Context.Provider value={{ state, dispatch }}>
+      // ...children
+    </Context.Provider>
+  );
+}
+function Foo() {
+  const { state, dispatch } = useContext(Context);
+  // ...
+}
+```
+
+这种方式能将自己的`hooks`跨组件共享状态了，使用还是比较方便，唯一的缺点就是自己需要使用`createContext`来创建`Context`并且挂载`Provider`，会多一点步骤，也需要自己管理`Context`，这可以说是纯手动
+
+### unstated-next
+
+`unstated-next`是一个200 字节的状态管理解决方案
+
+```jsx
+function useCounter(initialState = 0) {
+  const [count, setCount] = useState(initialState)
+  return { count, setCount }
+}
+
+const Counter = createContainer(useCounter);
+
+function Foo() {
+  const counter = Counter.useContainer();
+  // ...
+}
+
+function App() {
+  return (
+    <Counter.Provider>
+      <Foo />
+    </Counter.Provider>
+  )
+}
+```
+
+`unstated-next`的实现使用的全是`React`的`api`，源码也短，下面会对他的源码进行分析
+
+使用`unstated-next`让我们不需要自己创建和管理`Context`了，从纯手动切换到了半自动
+
+### UmiJS中提供的useModel
+
+UmiJS中提供了一个`useModel`方法，可以很方便的将`hooks`全局使用，它的默认规则是`src/models`下导出的`hooks`会作用于全局
+
+```jsx
+// src/models/count.ts
+export default () => {
+  const [count, setCount] = useState(0);
+  return { count, setCount };
+};
+//
+function App() {
+  const { count } = useModel('count');
+  // ...
+}
+```
+
+`useModel`等于是省去了上面的`useContext`和挂载`<Prvoider>`的步骤，由框架处理了，在React Developer Tools可以看到最外层是有一个存了导出`hooks`的值的`Provider`的，我想他的实现方式应该和`unstated-next`类似
+
+从自己创建和管理`Context`，挂载`Provider`，到自己挂载`Provder`，再到只需要写`hooks`逻辑，过程就是手动——半自动——全自动
+
+它的缺点就是范围局限了，仅限于`UmiJS`框架
+
+### 基于React的数据流优缺点
+
+仅在使用过程中个人的总结
+
+*优点*
+
+- 基于`React`，没有额外的学习过程，简单易用
+
+*缺点*
+
+- 无法做到精确刷新
+- 只是简单是数据流管理，并不包含常见的异步数据的处理
+
+#### Context无法做到精确刷新
+
+数据是一个整体，不能做到精确刷新，一旦改变`React`就会自动触发刷新
+
+```jsx
+function Foo() {
+  const { state: { foo } } = useContext(Context);
+  // ...
+}
+function Bar() {
+  const { state: { bar } } = useContext(Context);
+  // ...
+}
+```
+
+如果在`<Foo>`中调用了`dispatch()`对`state.foo`进行了更改，`<Bar>`也会刷新
+
+## 不基于React的数据流实现
+
+不基于`React`的数据流实现就是数据存储不在`React`里，数据改变不会直接触发组件刷新，而是通过其他的方式触发组件重新渲染，我只使用过2种
+
+- `Redux`+`React-Redux`
+- `DvaJs`
+
+### React-Redux
+
+在`Hooks`推出后，`React-Redux`也更新了`Hooks`方法，使用`useSelector()`来取得`state`
+
+```jsx
+const Counter = () => {
+  const counter = useSelector(state => state.counter)
+  // ...
+}
+```
+
+它的优点是会精确刷新，不会像`Context`一样导致整体刷新，因为`useSelector`的重新渲染是自己控制的，而不是交给`React`处理
+
+`Redux`+`React-Redux`的缺点我想用过的都知道，就是需要管理很多文件
+
+### DvaJS
+
+`DvaJS`其实没有提供`Hooks`的数据流方式，云谦大佬可能全身心投入`UmiJS`开发，已经有一段时间没更新了，但是我觉得作为一个集成度非常高的优秀数据流管理。
+
+仅仅使用过2个月的我对`DvaJS`的总结
+
+*优点*
+
+- 集成度很高，约定式，使用了`redux-sage`解决异步数据流问题
+- 比`redux`+`react-redux`简单很多，不再会有文件管理问题
+- 约定式的动态增加`reducer`，让一些数据可以懒加载
+
+## 小小的总结
+
+在类组件时代，无法拆分`state`，类组件感觉就很重，组件级`state`多了也很难管理，`Context`流行度也不算高，使用`<Context.Consumer>`让组件更重了，后来有了`contextType`也没有`useContext`这么简洁，所以感觉之前流行`Redux`也是有原因的，因为`React`本身没有提供好的状态管理
+
+`Hooks`时代，一切都变得更简洁，官方提供了`useReducer`这样的简洁版`Redux`，同时组件级的`state`也更简单，使用自定义的`Hooks`，让数据和视图耦合更低了，`useContext`+`useReducer`的方案可以解决大部分需要共享状态的场景
+
+使用了挺久的`React`，我感觉很多场景都不会全局共享状态，我现在做的项目就是后台管理系统，页面的数据也不会和别的页面关联，我都使用`Context`一把梭了，所以我更喜欢轻量级的`Hooks`数据流解决方案
+
+## 看看unstated-next源码
+
+有时候感觉自己真的变成了搬运工，缺乏自己的想法，就很呆，上面提到，我很长一段时间都是用`useContext`来共享状态，每次都是手动挡，前几天突然想，为什么自己要做重复的工作，一搜果然有大佬已经写好了
+
+```tsx
+// Provider传入的Props
+export interface ContainerProviderProps<State = void> {
+  initialState?: State;
+  children: React.ReactNode;
+}
+// createContainer创建的Container类型
+export interface Container<Value, State = void> {
+  Provider: React.ComponentType<ContainerProviderProps<State>>;
+  useContainer: () => Value;
+}
+
+// 创建一个Container
+export function createContainer<Value, State = void>(
+  // 自定义数据的hook
+  useHook: (initialState?: State) => Value
+): Container<Value, State> {
+  // Context用来传递数据
+  let Context = React.createContext<Value | null>(null);
+
+  function Provider(props: ContainerProviderProps<State>) {
+    // 用初始数据初始化自定义的hook
+    let value = useHook(props.initialState);
+    // 将hook的返回值赋值给Provider
+    return <Context.Provider value={value}>{props.children}</Context.Provider>;
+  }
+
+  // 使用Container，值就是自定义的hook的返回值
+  function useContainer(): Value {
+    let value = React.useContext(Context);
+    if (value === null) {
+      throw new Error("Component must be wrapped with <Container.Provider>");
+    }
+    return value;
+  }
+
+  return { Provider, useContainer };
+}
+
+export function useContainer<Value, State = void>(
+  container: Container<Value, State>
+): Value {
+  return container.useContainer();
+}
+```
+
+源码很简单，就是一个闭包
+
+作者说 “我相信 React 在状态管理方面已经非常出色”、“我希望社区放弃像 Redux 这样的状态管理库，并找到使用 React 内置工具链的更好方法”，我觉得很有道理
+
+---
+参考文章：[精读《React Hooks 数据流》](./https://zhuanlan.zhihu.com/p/126476910)
