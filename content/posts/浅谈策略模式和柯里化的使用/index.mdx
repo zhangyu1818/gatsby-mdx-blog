@@ -1,0 +1,260 @@
+---
+title: 浅谈策略模式和柯里化的使用
+date: 2020-05-02 00:48
+tags:
+    - Javascript
+---
+
+在开发中，遇到判断各种不同条件的情况是很常见的，使用策略模式，可以让我们去除`if else`，并且让逻辑低耦合
+
+最近开发的新功能，我使用策略模式对代码进行了一些小小的优化，给大家分享一手
+
+新功能就是聊天，聊天有很多种信息类型，有文本信息、图片信息、音频信息、视频信息、文件信息、系统信息等，同时发送新消息也需要调用对应的创建信息函数
+
+下面就以发送和创建不同的消息为例，浅谈策略模式和柯里化的使用
+
+## 策略模式
+
+在未使用策略模式的情况下，需要在一个函数里对所有类型进行判断，大概就会是这样
+
+```jsx
+const renderMessage = (messageType, payload) => {
+  if (messageType === MessageType.MSG_TEXT) {
+    const { text } = payload;
+    return <MessageText>{text}</MessageText>;
+  }
+  if (messageType === MessageType.MSG_IMAGE) {
+    const { imgUrl } = payload;
+    return <MessageImage url={imgUrl} />;
+  }
+  if (messageType === MessageType.MSG_VIDEO) {
+    const { videoUrl } = payload;
+    return <MessageVideo url={videoUrl} />;
+  }
+  if (messageType === MessageType.MSG_AUDIO) {
+    const { audioUrl } = payload;
+    return <MessageAudio url={audioUrl} />;
+  }
+  return <p>不支持的类型</p>;
+  // 无数种类型...
+  // ...
+};
+
+// render
+const { type, payload } = data;
+renderMessage(type, payload);
+```
+
+如果将渲染逻辑单独封装成另一个函数，这样至少将渲染逻辑抽离出来了
+
+```jsx
+const renderTextMessage = payload => {
+  const { text } = payload;
+  return <MessageText>{text}</MessageText>;
+};
+
+const renderMessage = (messageType, payload) => {
+  if (messageType === MessageType.MSG_TEXT) {
+    return renderTextMessage(payload)
+  }
+  // 无数种类型...
+  // ...
+};
+```
+
+但是依旧没摆脱`if else`，如果哪一天需要新增渲染条件，就需要对主函数进行大改动。
+
+策略模式里至少由两部分组成，一个是一组策略类，封装了具体的算法（也就是上例种的渲染逻辑），另一个是环境类，用于将请求委托给一个策略类
+
+实际在`javascript`中，函数是非常灵活的，所以不需要像传统的策略模式一样使用
+
+```jsx
+// 创建各种消息的逻辑
+const renderTextMessage = payload => {
+  const { text } = payload;
+  return <MessageText>{text}</MessageText>;
+};
+const renderImageMessage = payload => {
+  const { imgUrl } = payload;
+  return <MessageImage url={imgUrl} />;
+};
+const renderVideoMessage = payload => {
+  const { videoUrl } = payload;
+  return <MessageVideo url={videoUrl} />;
+};
+
+// 使用一个对象来代替if else
+const messageCreatorMap = {
+  [MessageType.MSG_TEXT]: renderTextMessage,
+  [MessageType.MSG_IMAGE]: renderImageMessage,
+  [MessageType.MSG_VIDEO]: renderVideoMessage,
+  // 无数种
+};
+
+// 不支持的处理
+const messageCreator = (type, payload) => {
+  try {
+    return messageCreatorMap[type](payload);
+  } catch {
+    return <p>不支持的类型</p>;
+  }
+};
+// render
+const { type, payload } = data;
+messageCreator(type, payload);
+```
+
+这样就不用依赖`if else`来做判断了，等于的判断在`javascript`里也可以使用对象来代替，比如使用`redux`的`reducer`函数，也可以用对象来取代`switch`
+
+上面是渲染消息使用了策略模式，同样的道理，渲染消息也能用策略模式来做，不过在实际写的时候，我发现柯里化才是发送信息的重点
+
+## 柯里化
+
+柯里化可以将多个参数的一个函数转化为多个一个或多个参数的函数，它的运用也非常常见了
+
+```javascript
+// 普通函数
+const sum = (a, b, c) => a + b + c;
+sum(1,2,3);
+// 柯里化函数
+const sum = a => b => c => a + b + c;
+sum(1)(2)(3);
+// bind函数也有部分参数功能
+const sumBind1 = sum.bind(null, 1);
+sumBind1(2,3);
+```
+
+先来看看，如果没有经过任何逻辑优化的创建消息函数
+
+```javascript
+// 发送文本消息
+const sendTextMessage = (payload, conversationID) => {
+  const result = conversationID.match(/^(C2C|GROUP)(.+)/);
+  if (result) {
+    const [, conversationType, to] = result;
+    const message = tim.createTextMessage({
+      to,
+      conversationType,
+      payload,
+    });
+    tim.sendMessage(message);
+  }
+};
+// 发送图片消息
+const sendImageMessage = (payload, conversationID) => {
+  const result = conversationID.match(/^(C2C|GROUP)(.+)/);
+  if (result) {
+    const [, conversationType, to] = result;
+    const message = tim.createImageMessage({
+      to,
+      conversationType,
+      payload,
+    });
+    tim.sendMessage(message);
+  }
+};
+// 发送视频消息
+const sendVideoMessage = (payload, conversationID) => {
+  const result = conversationID.match(/^(C2C|GROUP)(.+)/);
+  if (result) {
+    const [, conversationType, to] = result;
+    const message = tim.createVideoMessage({
+      to,
+      conversationType,
+      payload,
+    });
+    tim.sendMessage(message);
+  }
+};
+// 其他很多类型的消息...
+```
+
+可以看到逻辑都是相同的，仅仅是调用函数不同，如果使用策略模式+柯里化
+
+```javascript
+// type参数即是创建消息的类型
+const sendMessage = type => (payload, conversationID) => {
+  const result = conversationID.match(/^(C2C|GROUP)(.+)/);
+  if (result) {
+    const [, conversationType, to] = result;
+    const message = tim[type]({
+      to,
+      conversationType,
+      payload,
+    });
+    tim.sendMessage(message);
+  }
+};
+
+const sendMessage = {
+  sendTextMessage: createMessage("createTextMessage"),
+  sendImageMessage: createMessage("createImageMessage"),
+  sendVideoMessage: createMessage("createVideoMessage"),
+};
+
+// 发送消息
+sendMessage.sendTextMessage({ text: "hello" }, "C2C1");
+```
+
+这样其实已经够了，但是如果我们想让创建消息和发送消息完全解藕呢，那就得把`tim.sendMessage`完全提取出来
+
+```javascript
+// 发送消息
+const sendMessage = (conversationID, createMessage) => {
+  const result = conversationID.match(/^(C2C|GROUP)(.+)/);
+  if (result) {
+    const [, conversationType, to] = result;
+    const message = createMessage(to, conversationType);
+    tim.sendMessage(message);
+  }
+};
+
+// 创建消息
+const createMessage = type => payload => (to, conversationType) => {
+  const message = tim[type]({
+    to,
+    conversationType,
+    payload,
+  });
+  return message;
+};
+
+const createTextMessage = createMessage("createTextMessage");
+
+// 发送消息
+// 使用bind同样可以做到一定的柯里化功能
+const sendMessageBindID = sendMessage.bind(null, "C2C1");
+sendMessageBindID(createTextMessage({ text: "hello" }));
+```
+
+这样就将发送消息的逻辑和创建消息的逻辑完全分开了，不管后续会有什么新的种类消息，也仅仅只会使用`createMessage`创建一个新的对应消息的创建函数，再通过`sendMessage`发送
+
+### 使用lodash来让柯里化更容易
+
+手动创建柯里化函数通常只是达到了部分参数的功能，使用`lodash`提供的`curry`方法可以让创建柯里化函数更简单
+
+```javascript
+import {curry} from "lodash";
+// 创建一个普通的多参数函数
+const createMessage = (type, payload, to, conversationType) => {
+  const message = tim[type]({
+    to,
+    conversationType,
+    payload,
+  });
+  return message;
+};
+// 使用curry将函数转为柯里化函数
+const createMessageCurry = curry(createMessage);
+
+const createTextMessage = createMessageCurry('createTextMessage');
+```
+
+还是非常有趣的
+
+以上就是新功能开发的简单心得了，希望对同样前行的大家有帮助
+
+---
+
+虽然有看见说将部分参数函数和柯里化函数不是一个，这里我就将他们统称为柯里化了，主要在使用的过程中都非常相似的
+
