@@ -1,0 +1,193 @@
+---
+title: 理解TypeScript中的infer关键字
+date: 2020-05-27 22:11
+tags:
+    - TypeScript
+---
+
+## 前言
+
+`infer`是在`typescript 2.8`中新增的关键字，距离现在`3.9.3`已经有两年出头了，趁着今天刚好使用了`infer`，所以好好整理一番
+
+## infer
+
+`infer`可以在`extends`的条件语句中推断待推断的类型
+
+例如在文档的示例中，使用`infer`来推断函数的返回值类型
+
+```typescript
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
+
+type func = () => number;
+type variable = string;
+type funcReturnType = ReturnType<func>; // funcReturnType 类型为 number
+type varReturnType = ReturnType<variable>; // varReturnType 类型为 string
+```
+
+在这个例子中，`infer R`代表待推断的返回值类型，如果`T`是一个函数，则返回函数的返回值，否则返回`any`
+
+仅仅通过这一个例子，是很难看出`infer`是用来干什么的，还需要多看几个例子
+
+### infer解包
+
+`infer`的作用不止是推断返回值，还可以解包，我觉得这是比较常用的
+
+假如想在获取数组里的元素类型，在不会`infer`之前我是这样做的
+
+```typescript
+type Ids = number[];
+type Names = string[];
+
+type Unpacked<T> = T extends Names ? string : T extends Ids ? number : T;
+
+type idType = Unpacked<Ids>; // idType 类型为 number
+type nameType = Unpacked<Names>; // nameType 类型为string
+```
+
+上次我写了20多行，就为了获取一堆各种不同类型的数组里的元素类型，然而如果使用`infer`来解包，会变得十分简单
+
+```typescript
+type Unpacked<T> = T extends (infer R)[] ? R : T;
+
+type idType = Unpacked<Ids>; // idType 类型为 number
+type nameType = Unpacked<Names>; // nameType 类型为string
+```
+
+这里`T extends (infer R)[] ? R : T`的意思是，如果`T`是某个待推断类型的数组，则返回推断的类型，否则返回`T`
+
+再比如，想要获取一个`Promise<xxx>`类型中的`xxx`类型，在不使用`infer`的情况下我想不到何解
+
+```typescript
+type Response = Promise<number[]>;
+type Unpacked<T> = T extends Promise<infer R> ? R : T;
+
+type resType = Unpacked<Response>; // resType 类型为number[]
+```
+
+### infer推断联合类型
+
+还是官方文档的例子
+
+```typescript
+type Foo<T> = T extends { a: infer U; b: infer U } ? U : never;
+
+type T10 = Foo<{ a: string; b: string }>; // T10类型为 string
+type T11 = Foo<{ a: string; b: number }>; // T11类型为 string | number
+```
+
+同一个类型变量在推断的值有多种情况的时候会推断为联合类型，针对这个特性，很方便的可以将元组转为联合类型
+
+```typescript
+type ElementOf<T> = T extends (infer R)[] ? R : never;
+
+type TTuple = [string, number];
+type Union = ElementOf<TTuple>; // Union 类型为 string | number
+```
+
+### React中infer的使用
+
+在`React`的`typescript`源码中应该常常使用`infer`
+
+就拿`useReducer`来举例子，如果我们这样使用`useReducer`
+
+```typescript
+const reducer = (x: number) => x + 1;
+const [state, dispatch] = useReducer(reducer, '');
+// Argument of type "" is not assignable to parameter of type 'number'.
+```
+
+这里`useReducer`会报一个类型错误，说`""`不能赋值给`number`类型
+
+那么`React`这里是如何通过`reducer`函数的类型来判断`state`的类型呢？
+
+查看`userReducer`的定义，定义如下
+
+```typescript
+function useReducer<R extends Reducer<any, any>, I>(
+  reducer: R,
+  // ReducerState 推断类型
+  initializerArg: I & ReducerState<R>,
+  initializer: (arg: I & ReducerState<R>) => ReducerState<R>
+): [ReducerState<R>, Dispatch<ReducerAction<R>>];
+
+// infer推断
+type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any>
+  ? S
+  : never;
+// Reducer类型
+type Reducer<S, A> = (prevState: S, action: A) => S;
+```
+
+一切明了了，使用了`infer`推断`reducer`函数里的`state`参数类型
+
+### 我今天遇见的问题
+
+今天使用`ant-design-chart`，库里没有把`Ref`的定义导出，所以只能自己取了
+
+```typescript
+// 已知
+type ref = React.MutableRefObject<G2plotStackedBar | undefined>;
+// 求 ???
+const chartRef = useRef<???>()
+```
+
+有了上面的学习，这里就很简单了，只需要取出`React.MutableRefObject`里的内容，一行`infer`搞定
+
+```typescript
+// infer推断
+type ChartRef<T> = T extends React.MutableRefObject<infer P> ? P : never;
+
+const chartRef = useRef<ChartRef<ref>>()
+```
+
+##  总结
+
+`infer`是非常有用的，如果想要摆脱仅仅是在写带类型的`javascript`，高级特性一定要了解
+
+我可能一年前就看见`infer`了，一直没有好好学，原因除了自己懒，还有就是水平确实不够，今年再学明显感觉不同了。
+
+再推荐一篇很好的文章，我也是看了这篇文章才好好学习了一下`infer`，这篇文章讲的更复杂一点
+
+[Vue3 跟着尤雨溪学 TypeScript 之 Ref 类型从零实现](https://juejin.im/post/5e94595c6fb9a03c341daa75)
+
+## 题外话 分享一道比较复杂的练习题
+
+原题就不贴出了，在这里可以看见 [github](https://github.com/LeetCode-OpenSource/hire/blob/master/typescript_zh.md)
+
+分享一下我的思路
+
+1. 首先先取得函数的名字，通过`extends`关键字可以判断是否是函数，是返回键名，不是返回`never`，最后使用映射类型`[keyof T]`的方式来获取键名的联合类型，因为`never`和任何类型组联合类型都会过滤掉`never`，所以自然排除了`never`
+2. 就用`infer`硬推
+
+题解如下：
+
+```typescript
+type EffectModuleFuncName = {
+  [K in keyof EffectModule]: EffectModule[K] extends Function ? K : never;
+}[keyof EffectModule];
+
+type UnPackedPromise<T> = T extends Promise<infer P> ? P : T;
+
+type EffectModuleFunc<T> = T extends (params: infer P) => infer U
+  ? P extends Promise<infer R>
+    ? (v: R) => UnPackedPromise<U>
+    : P extends Action<infer X>
+    ? (v: X) => UnPackedPromise<U>
+    : never
+  : never;
+
+// 修改 Connect 的类型，让 connected 的类型变成预期的类型
+type Connect = (
+  module: EffectModule,
+) => { [K in EffectModuleFuncName]: EffectModuleFunc<EffectModule[K]> };
+```
+
+也不知道自己写的对不对，总觉得怪怪的，可以讨论一下
+
+---
+
+参考资料：
+
+1. [TypeScript文档](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html)
+2. [深入理解TypeScript](https://jkchao.github.io/typescript-book-chinese/tips/infer.html#介绍)
+
