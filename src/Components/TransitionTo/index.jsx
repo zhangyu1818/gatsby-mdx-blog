@@ -133,7 +133,9 @@ export default function TransitionTo(allProps) {
   const { children, ...props } = allProps;
   return (
     <>
-      <SwipeOver {...props} duration={0.7}>{children}</SwipeOver>
+      <SwipeOver {...props} duration={0.7}>
+        {children}
+      </SwipeOver>
     </>
   );
 }
