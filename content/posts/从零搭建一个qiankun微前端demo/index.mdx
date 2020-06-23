@@ -1,0 +1,372 @@
+---
+title: 从零搭建一个qiankun微前端demo
+date: 2020-06-17 22:57
+tags:
+    - Javascript
+---
+
+了解微前端的起因是因为我公司的大多数页面都是手机h5，分散且基本毫无关联，每次新页面都开一个二级域名，很难管理，所以研究了微前端，虽然很久以前就听过，拖延让我直到有需要才去自己学习
+
+本文初探`qiankun`，并且搭建一个可以跑的基础`demo`，[仓库地址](https://github.com/zhangyu1818/micro-frontend-demo)
+
+## 前言
+
+微前端是什么呢？按照`qiankun`文档中的一段摘录
+
+> Techniques, strategies and recipes for building a **modern web app** with **multiple teams** that can **ship features independently**. -- [Micro Frontends](https://micro-frontends.org/)
+>
+> 微前端是一种多个团队通过独立发布功能的方式来共同构建现代化 web 应用的技术手段及方法策略。
+
+我的理解是，微前端可以将多个关联性不强，不同项目的子应用合体在一个项目里，并且与技术栈无关，在同一个页面可以同时显示`React`、`Vue`、`jQuery`的项目
+
+那么`qiankun`是什么呢？
+
+`qiankun` 是一个基于 [single-spa](https://github.com/CanopyTax/single-spa) 的[微前端](https://micro-frontends.org/)实现库，旨在帮助大家能更简单、无痛的构建一个生产可用微前端架构系统
+
+由于是国内开源的项目，文档也是中文，自然学习`qiankun`也是最友好的
+
+## qiankun使用的两种方式
+
+- 随便什么项目安装`qiankun`后使用
+- 基于`umijs`的`plugin-qiankun`
+
+第一种方式，对主应用和子应用都没有要求，只要安装了`qiankun`并且照着文档配置好，就能跑通，但是需要配置的东西要多一点
+
+第二种方式，主应用需要为`umijs`的项目，子应用如果也为`umijs`的项目，则配置非常简单，并且有额外的功能，比如跨应用的`React hook`来共享数据
+
+所以，这两种方式，都探索一番
+
+## 在普通项目中使用qiankun
+
+普通项目并不需要是框架项目，仅仅一个`js`，一个`html`都可以的
+
+### 主应用
+
+#### 主应用安装qiankun
+
+```sh
+yarn add qiankun
+```
+
+#### 在主应用的`html`里增加一个id为`root`的div
+
+```html
+<div id="root"></div>
+```
+
+#### 主应用的`js`文件中写上`qiankun`的配置
+
+```javascript
+import { registerMicroApps } from "qiankun";
+
+// 仓库demo中有2个子项目，这里仅举例create-react-app的项目
+registerMicroApps([
+  {
+    // 子应用唯一名称
+    name: "app2",
+    // 子应用入口
+    entry: "//localhost:8002",
+    // 子应用挂载的元素
+    container: "#root",
+    // 子应用匹配路径
+    activeRule: "/app2",
+  },
+]);
+
+start(); // 微前端 —— 启动
+```
+
+### 子应用
+
+这里的子应用使用`create-react-app`的项目
+
+#### 修改`webpack`配置
+
+由于要修改`webpack`的配置，在不`eject`的情况下需要安装`react-app-rewired`来修改配置
+
+```javascript
+yarn add react-app-rewired --dev
+```
+
+#### 修改`pageage.json`中的`scripts`
+
+```diff
+"scripts": {
+-	"start": "react-scripts start",
++	"start": "react-app-rewired start",
+```
+
+#### 增加react-app-rewired配置文件
+
+根目录增加`react-app-rewired`的配置文件`config-overrides.js`
+
+```javascript
+const { name } = require("./package");
+
+module.exports = {
+  webpack: function override(config, env) {
+    // 根据qiankun文档配置
+    config.output.library = `${name}-[name]`;
+    config.output.libraryTarget = "umd";
+    config.output.jsonpFunction = `webpackJsonp_${name}`;
+    return config;
+  },
+  devServer: function (configFunction) {
+    return function (proxy, allowedHost) {
+      const config = configFunction(proxy, allowedHost);
+      // 微前端项目中子项目必须支持跨域
+      config.headers = {
+        "Access-Control-Allow-Origin": "*",
+      };
+      return config;
+    };
+  },
+};
+
+```
+
+#### 修改挂载元素id
+
+修改页面挂载元素`id`，因为主应用占用了`root`这个`id`
+
+`public/index.html`
+
+```diff
+- <div id="root"></div>
++ <div id="root-cra"></div>
+```
+
+#### 修改子应用入口文件
+
+`src/index.jsx`
+
+增加`render`函数
+
+```diff
+-ReactDOM.render(
+-  <App />,
+-  document.getElementById('root')
+-);
+
++ const render = () => {
++   ReactDOM.render(<App />, document.getElementById("root-cra")); // 修改id
++ };
+
+```
+
+添加`qiankun`生命周期钩子
+
+```javascript
+// 在不是qiankun的情况下独立运行
+// qiankun会注入__POWERED_BY_QIANKUN__变量
+// 如果没有这个变量，表示并不是子应用，直接渲染页面节点
+if (!window.__POWERED_BY_QIANKUN__) {
+  render();
+}
+
+/**
+ * bootstrap 只会在微应用初始化的时候调用一次，下次微应用重新进入时会直接调用 mount 钩子，不会再重复触发 bootstrap。
+ * 通常我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
+ */
+export async function bootstrap() {
+  console.log("app2 create-react-app bootstraped");
+}
+/**
+ * 应用每次进入都会调用 mount 方法，通常我们在这里触发应用的渲染方法
+ */
+export async function mount(props) {
+  console.log("app2 create-react-app mount", props);
+  // 调用render,渲染子应用
+  render();
+}
+/**
+ * 应用每次 切出/卸载 会调用的方法，通常在这里我们会卸载微应用的应用实例
+ */
+export async function unmount() {
+  console.log("app2 create-react-app unmount");
+  ReactDOM.unmountComponentAtNode(document.getElementById("root-cra")!);
+}
+```
+
+访问主应用地址 `localhost:8080`，是主应用，访问`localhost:8080/app2`是`create-react-app`的子应用，如果子应用有路由也可以直接访问，如`localhost:8000/app2/page1`
+
+## 在umijs中使用qiankun
+
+`umijs`中，只需要主应用添加对应的插件`plugin-qiankun`
+
+### 主应用
+
+#### 安装 plugin-qiankun
+
+```sh
+yarn add @umijs/plugin-qiankun@next --dev
+```
+
+#### 新增 document.ejs
+
+新建 `src/pages/document.ejs`，umi 约定如果这个文件存在，会作为默认模板
+
+```html
+<!doctype html>
+<html>
+<head>
+    <meta charSet="utf-8"/>
+    <title>micro frontend</title>
+</head>
+<body>
+<div id="root-subapp"></div>
+</body>
+</html>
+```
+
+这一步主要是需要增加一个额外的`div`元素来放置子应用，在`plugin-qiankun`中默认子应用挂载在`root-subapp`，如果没有这个元素会报错
+
+#### 修改配置 .umirc.ts
+
+```typescript
+import { defineConfig } from 'umi';
+
+export default defineConfig({
+  qiankun: {
+    master: {
+      // 注册子应用信息
+      apps: [
+        {
+          name: 'app1', // 唯一 id
+          entry: '//localhost:8001', // html entry
+          base: '/app1', // app1 的路由前缀，通过这个前缀判断是否要启动该应用，通常跟子应用的 base 保持一致
+          history: 'browser', // 子应用的 history 配置，默认为当前主应用 history 配置
+          // 子应用通过钩子函数的参数props可以拿到这里传入的值
+          props: {},
+        },
+      ],
+      jsSandbox: true, // 是否启用 js 沙箱，默认为 false
+      prefetch: true, // 是否启用 prefetch 特性，默认为 true
+    },
+  },
+});
+
+```
+
+### 子应用
+
+`umijs`子应用就非常简单了，只需要修改`.umirc.ts`就行了
+
+```typescript
+import { defineConfig } from 'umi';
+
+export default defineConfig({
+  base: `/app1`, // 子应用的 base，默认为 package.json 中的 name 字段
+  qiankun: { slave: {} },
+});
+```
+
+## 全局共享数据
+
+在普通`qiankun`和`umijs`中又不相同了
+
+### 普通qiankun项目
+
+普通`qiankun`可以通过`initGlobalState`方法来定义
+
+#### 主应用
+
+```javascript
+import { initGlobalState } from 'qiankun';
+// 初始化 state
+const actions = initGlobalState(state);
+actions.onGlobalStateChange((state, prev) => {
+  // state: 变更后的状态; prev 变更前的状态
+  console.log(state, prev);
+});
+actions.setGlobalState(state); // 修改state
+actions.offGlobalStateChange(); // 移除当前应用的状态监听，微应用 umount 时会默认调用
+```
+
+#### 子应用
+
+`umijs`的子应用钩子函数需要定义在`src/app.js`
+
+```javascript
+export const qiankun = {
+    // 从生命周期钩子函数 mount 中获取通信方法，使用方式和 master 一致
+    async mount(props) {
+      props.onGlobalStateChange((state, prev) => {
+        // state: 变更后的状态; prev 变更前的状态
+        console.log(state, prev);
+      });
+      props.setGlobalState(state); // 设置
+    }
+}
+```
+
+由于方法和事件只在钩子函数里有，我觉得可以在`mount`的时候注册一个像`event bus`这样的方法来供全局调用修改函数
+
+### umijs的qiankun项目
+
+`plugin-umi`提供了一个比较方便的`React hook`来全局调用
+
+#### 主应用
+
+约定主应用中在 `src/rootExports.js` 里 `export` 内容
+
+```javascript
+let data = '';
+let eventList = [];
+
+export function getData() {
+  return data;
+}
+
+export function bindOnChange(fn) {
+  if (typeof fn === 'function') {
+    eventList.push(fn);
+  }
+  return function unBind() {
+    eventList = eventList.filter(v => v !== fn);
+  };
+}
+
+export function setData(newData) {
+  data = newData;
+  eventList.forEach(cb => cb(data));
+}
+```
+
+#### 子应用
+
+```javascript
+// ...
+const { bindOnChange, setData } = useRootExports();
+useEffect(() => {
+    const unBind = bindOnChange((data) => {
+        console.log('root exports data change:', data);
+    });
+    return () => unBind();
+}, []);
+```
+
+需要注意的是，如果这里子应用单独运行或者是主应用的`qiankun`不基于`umijs`，这个钩子会报错的，需要自己做好判断
+
+### 直接通过配置传递
+
+```javascript
+apps: [
+    {
+        name: 'app1', // 唯一 id
+        // ...
+        // 传递给子应用
+        props: {
+            username: 'zhangyu'
+        },
+    },
+],
+```
+
+子应用在生命周期钩子函数中的参数可以拿到`props`的内容
+
+在`qiankun`中这个配置是可以动态加载的，本文只探索了固定配置
+
+---
+
+本文完整demo[仓库地址](
